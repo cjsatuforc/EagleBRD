@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<translib>
+<trans package="RESC1608X55M" file="RES_SMD0603.FCStd" desc="" movx="0" movy="0" movz="0" rotx="0" roty="0" rotz="0"/>
+<trans package="RESC1608X55N" file="RES_SMD0603.FCStd" desc="" movx="0" movy="0" movz="0" rotx="0" roty="0" rotz="0"/>
+<trans package="RESC2012X60M" file="RES_SMD0805.FCStd" desc="" movx="0" movy="0" movz="0" rotx="0" roty="0" rotz="0"/>
+<trans package="RESC2012X60N" file="RES_SMD0805.FCStd" desc="" movx="0" movy="0" movz="0" rotx="0" roty="0" rotz="0"/>
+<trans package="RESC3216X70M" file="RES_SMD1206.FCStd" desc="" movx="0" movy="0" movz="0" rotx="0" roty="0" rotz="0"/>
+<trans package="RESC3216X70N" file="RES_SMD1206.FCStd" desc="" movx="0" movy="0" movz="0" rotx="0" roty="0" rotz="0"/>
+<trans package="RESC5025X70M" file="RES_SMD2010.FCStd" desc="" movx="0" movy="0" movz="0" rotx="0" roty="0" rotz="0"/>
+<trans package="RESC5025X70N" file="RES_SMD2010.FCStd" desc="" movx="0" movy="0" movz="0" rotx="0" roty="0" rotz="0"/>
+<trans package="RESC6331X70M" file="RES_SMD2512.FCStd" desc="" movx="0" movy="0" movz="0" rotx="0" roty="0" rotz="0"/>
+<trans package="RESC6331X70N" file="RES_SMD2512.FCStd" desc="" movx="0" movy="0" movz="0" rotx="0" roty="0" rotz="0"/>
+<trans package="CAPC1608M" file="CAP_SMD0603.FCStd" desc="" movx="0" movy="0" movz="0" rotx="0" roty="0" rotz="0"/>
+<trans package="CAPC1608N" file="CAP_SMD0603.FCStd" desc="" movx="0" movy="0" movz="0" rotx="0" roty="0" rotz="0"/>
+<trans package="CAPC2012M" file="CAPC2012X130.FCStd" desc="" movx="0" movy="0" movz="0" rotx="0" roty="0" rotz="0"/>
+<trans package="CAPC2012N" file="CAPC2012X130.FCStd" desc="" movx="0" movy="0" movz="0" rotx="0" roty="0" rotz="0"/>
+<trans package="CAPC3216M" file="CAP1206_kemet.FCStd" desc="" movx="0" movy="0" movz="0" rotx="0" roty="0" rotz="0"/>
+<trans package="CAPC3216N" file="CAP1206_kemet.FCStd" desc="" movx="0" movy="0" movz="0" rotx="0" roty="0" rotz="0"/>
+<trans package="SOT95P237X111-3M" file="SW3dPS-3-lead_sot23-3_mod.FCStd" desc="" movx="0" movy="0" movz="0" rotx="0" roty="0" rotz="0"/>
+<trans package="SOT95P237X111-3N" file="SW3dPS-3-lead_sot23-3_mod.FCStd" desc="" movx="0" movy="0" movz="0" rotx="0" roty="0" rotz="0"/>
+<trans package="SOT95P237X112-3N" file="SW3dPS-3-lead_sot23-3_mod.FCStd" desc="" movx="0" movy="0" movz="0" rotx="0" roty="0" rotz="0"/>
+<trans package="MINI-USB_SHIELD5P4" file="USB_mini_B.FCStd" desc="" movx="-3.3" movy="0" movz="0" rotx="90" roty="0" rotz="-90"/>
+<trans package="HDRV8W64P254_1X8_2032X254X838B" file="pin_header_aw_108_08-t.stp" desc="" movx="0" movy="0" movz="0" rotx="-90" roty="0" rotz="0"/>
+<trans package="DIOC2012X95N" file="DIOC2012.FCStd" desc="" movx="0" movy="0" movz="0" rotx="0" roty="0" rotz="0"/>
+<trans package="DIOC2012X95M" file="DIOC2012.FCStd" desc="" movx="0" movy="0" movz="0" rotx="0" roty="0" rotz="0"/>
+</translib>
