@@ -15,15 +15,15 @@
 # * You should have received a copy of the GNU General Public License          *
 # * along with this program.  If not, see <http://www.gnu.org/licenses/>.      *
 # *                                                                            *
-# * Dieses Programm ist Freie Software: Sie können es unter den Bedingungen    *
+# * Dieses Programm ist Freie Software: Sie koennen es unter den Bedingungen   *
 # * der GNU General Public License, wie von der Free Software Foundation,      *
-# * Version 3 der Lizenz oder (nach Ihrer Option) jeder späteren               *
-# * veröffentlichten Version, weiterverbreiten und/oder modifizieren.          *
+# * Version 3 der Lizenz oder (nach Ihrer Option) jeder spaeteren              *
+# * veroeffentlichten Version, weiterverbreiten und/oder modifizieren.         *
 # *                                                                            *
-# * Dieses Programm wird in der Hoffnung, dass es nützlich sein wird, aber     *
-# * OHNE JEDE GEWÄHRLEISTUNG, bereitgestellt; sogar ohne die implizite         *
-# * Gewährleistung der MARKTFÄHIGKEIT oder EIGNUNG FÜR EINEN BESTIMMTEN ZWECK. *
-# * Siehe die GNU General Public License für weitere Details.                  *
+# * Dieses Programm wird in der Hoffnung, dass es nuetzlich sein wird, aber    *
+# * OHNE JEDE GEWAEHRLEISTUNG, bereitgestellt; sogar ohne die implizite        *
+# * Gewaehrleistung der MARKTFAEHIGKEIT oder EIGNUNG FUER EINEN BESTIMMTEN ZWECK
+# * Siehe die GNU General Public License fuer weitere Details.                 *
 # *                                                                            *
 # * Sie sollten eine Kopie der GNU General Public License zusammen mit diesem  *
 # * Programm erhalten haben. Wenn nicht, siehe <http://www.gnu.org/licenses/>. *
@@ -45,51 +45,45 @@ import ImportGui
 
 from ConfigParser import SafeConfigParser
 
-# --- Standardconfigvalues -----------------------------------------------------
+# --- global define values -----------------------------------------------------
 NOBOARD=0
 PLANEGEN=1
 CADFILE=2
 EXTRACTED=3
-
 PH_NONE=0
 PH_BALL=1
 PH_CYL=2
 
-# --- Default Values -----------------------------------------------------------
+# --- std. values if no .cfg was used - Here you can set global default settings
 default_docname="NEWDOC"
 default_boardgentype=PLANEGEN
 default_thickness=1.6
 default_show_notfound=PH_BALL
 default_bgen_border=10.
 default_libpath=FreeCAD.getHomePath()+"Mod/EagleBRD/lib/"
-default_pack_excludelist=["aaa"]
+default_pack_excludelist=["bla"]
 default_signalgen=True
+default_diagnostic=True
+default_diag_path = FreeCAD.getHomePath()+"Mod/EagleBRD/"
+default_diag_filename = "diagnostic.txt"
+default_signal_pcb_copper = 0.02
+default_signal_wirelimit = 4000
 
-
-# --- Global Variables ---------------------------------------------------------
-docname=default_docname
-boardgentype=default_boardgentype
-pcb_thickness=default_thickness
-show_notfound=default_show_notfound
-bgen_border=default_bgen_border
-libpath=default_libpath
-pack_excludelist=[]
-signalgen=default_signalgen
-
+# --- global variables ---------------------------------------------------------
+docname = default_docname
+boardgentype = default_boardgentype
+pcb_thickness = default_thickness
+show_notfound = default_show_notfound
+bgen_border = default_bgen_border
+libpath = default_libpath
+pack_excludelist = []
+signalgen = default_signalgen
 boardCADfilePath = ""
 #boardCADfilePath = libpath + "board.stl"
-
-
-POINT_TOLERANCE = 0.005
-LAYER_3D_NUMBER = "57"
-
-#inputFilePath = 'D:/bin/FreeCAD/Mod/MyScripts/test.brd'
 libFilePath = libpath+"translib.xml"
-
-DIAGNOSTIC = 1
-diag_path=FreeCAD.getHomePath()+"Mod/EagleBRD/"
-diag_filename="diagnostic.txt"
-
+DIAGNOSTIC = default_diagnostic
+diag_path = default_diag_path
+diag_filename = default_diag_filename
 lib_pack = []
 lib_file = []
 lib_desc = []
@@ -99,7 +93,13 @@ lib_movz = []
 lib_rotx = []
 lib_roty = []
 lib_rotz = []
+signal_pcb_copper = default_signal_pcb_copper
+signal_wirelimit = default_signal_wirelimit
 
+# currently not used
+POINT_TOLERANCE = 0.005
+LAYER_3D_NUMBER = "57"
+#inputFilePath = 'D:/bin/FreeCAD/Mod/MyScripts/test.brd'
 #dom = xml.dom.minidom.parse(inputFilePath)
 #domlib = xml.dom.minidom.parse(libFilePath)
 
@@ -138,7 +138,7 @@ def configsystem(fname):
    
   docname = string.replace(os.path.splitext(os.path.basename(fname))[0],'.','_')
   #print os.path.dirname(fname)
-  if DIAGNOSTIC==1:
+  if DIAGNOSTIC==True:
     diagfile=__builtin__.open(diag_path+diag_filename, "w")
     diagfile.writelines("Working path: "+os.path.dirname(fname)+"\n")
     diagfile.writelines("Configfile: "+os.path.dirname(fname)+"/"+os.path.splitext(os.path.basename(fname))[0]+".cfg\n")
@@ -146,7 +146,7 @@ def configsystem(fname):
   
   cfgfile=os.path.dirname(fname)+"/"+os.path.splitext(os.path.basename(fname))[0]+".cfg"
   if os.path.isfile(cfgfile):
-    if DIAGNOSTIC==1:
+    if DIAGNOSTIC==True:
       diagfile=__builtin__.open(diag_path+diag_filename, "a")
       diagfile.writelines("Found: Config File\n")
       diagfile.close()
@@ -155,7 +155,7 @@ def configsystem(fname):
     parser.read(cfgfile)
        
     if parser.has_section('BOARD'):
-      if DIAGNOSTIC==1:
+      if DIAGNOSTIC==True:
         diagfile=__builtin__.open(diag_path+diag_filename, "a")
         diagfile.writelines("Found: Section BOARD in .cfg file\n")
         diagfile.close()
@@ -184,7 +184,7 @@ def configsystem(fname):
           else:
             pack_excludelist.append(ele)
             
-        if DIAGNOSTIC==1:
+        if DIAGNOSTIC==True:
           diagfile=__builtin__.open(diag_path+diag_filename, "a")
           diagfile.writelines("Found: Option EXCLUDELIST in Section PARTS in .cfg\n")
           for xy in pack_excludelist:
@@ -205,7 +205,7 @@ def configsystem(fname):
         signalgen = False
 
   else:
-    if DIAGNOSTIC==1:
+    if DIAGNOSTIC==True:
       diagfile=__builtin__.open(diag_path+diag_filename, "a")
       diagfile.writelines("Config file not found. Using standard Values.\n")
       diagfile.close()
@@ -302,14 +302,17 @@ def convertarcvalues(ax1,ay1,ax2,ay2,aangle):
   return centerx, centery, radius, startangle, endangle
   #return centerx, centery, radius, startangle, endangle, xm, ym, dx, dy, m, a
 
-
+  
+# ******************************************************************************
+# Generates signals and VIA's out of *.brd copper layers and Group it into 
+# signalnames and layers
 def showsignals(bfile1):
-  pcb_copper = 0.02
+  global signal_pcb_copper
+  global signal_wirelimit
   lay1_shapes = []
   lay2_shapes = []
   lay15_shapes = []
   lay16_shapes =[]
-  wirelimit = 4000
   wirecnt = 0
   # Get the Eagle Board File signals
   path1 = bfile1.getElementsByTagName("eagle")[0]
@@ -336,7 +339,7 @@ def showsignals(bfile1):
     layer15_not_empty = 0
     layer16_not_empty = 0
     for sgw in sgwires:
-      if wirecnt < wirelimit:
+      if wirecnt < signal_wirelimit:
         if ((sgw.getAttribute("layer")=="1") or (sgw.getAttribute("layer")=="2") or (sgw.getAttribute("layer")=="15") or (sgw.getAttribute("layer")=="16")):
           wirecnt = wirecnt+1
           sgx1 = float(sgw.getAttribute("x1"))
@@ -346,9 +349,9 @@ def showsignals(bfile1):
           sgwidth = float(sgw.getAttribute("width"))
           if (sgw.hasAttribute("curve")!=True):
             sglen = math.sqrt(math.pow((sgx1-sgx2),2)+math.pow((sgy1-sgy2),2))
-            box = Part.makeBox(sglen,sgwidth,pcb_copper,FreeCAD.Vector(0,-(sgwidth/2),0))
-            cyl1= Part.makeCylinder((sgwidth/2),pcb_copper)
-            cyl2= Part.makeCylinder((sgwidth/2),pcb_copper,FreeCAD.Vector(sglen,0,0))
+            box = Part.makeBox(sglen,sgwidth,signal_pcb_copper,FreeCAD.Vector(0,-(sgwidth/2),0))
+            cyl1= Part.makeCylinder((sgwidth/2),signal_pcb_copper)
+            cyl2= Part.makeCylinder((sgwidth/2),signal_pcb_copper,FreeCAD.Vector(sglen,0,0))
             wireseg = box
             wireseg = wireseg.fuse(cyl1)
             wireseg = wireseg.fuse(cyl2)
@@ -367,22 +370,22 @@ def showsignals(bfile1):
               lay15_shapes.append(wireseg)
             elif sgw.getAttribute("layer")=="16":
               layer16_not_empty = 1
-              wireseg.Placement = FreeCAD.Placement(FreeCAD.Vector(sgx1, sgy1, (-0.5*pcb_thickness)-pcb_copper), FreeCAD.Rotation(eulerToQuaternion(segangle, 0, 0)))
+              wireseg.Placement = FreeCAD.Placement(FreeCAD.Vector(sgx1, sgy1, (-0.5*pcb_thickness)-signal_pcb_copper), FreeCAD.Rotation(eulerToQuaternion(segangle, 0, 0)))
               lay16_shapes.append(wireseg)
           #elif (False==True):
           elif (sgw.hasAttribute("curve")==True):
             arccurve = float(sgw.getAttribute("curve"))
-            cyl1 = Part.makeCylinder((sgwidth/2),pcb_copper)
-            cyl2 = Part.makeCylinder((sgwidth/2),pcb_copper)
+            cyl1 = Part.makeCylinder((sgwidth/2),signal_pcb_copper)
+            cyl2 = Part.makeCylinder((sgwidth/2),signal_pcb_copper)
             arcx,arcy,arcrad,arcstart,arcstop = convertarcvalues(sgx1,sgy1,sgx2,sgy2,arccurve)
-            if DIAGNOSTIC==1:
+            if DIAGNOSTIC==True:
               diagfile=__builtin__.open(diag_path+diag_filename, "a")
               diagfile.writelines("ARC: x="+str(arcx)+"  y="+str(arcy)+"  rad="+str(arcrad)+"  start="+str(arcstart)+"  stop="+str(arcstop)+"\n")
               diagfile.close()
             if arccurve<0:
               arccurve=-arccurve
-            arc1 = Part.makeCylinder(arcrad+(sgwidth/2),pcb_copper,FreeCAD.Vector(0,0,0),FreeCAD.Vector(0,0,1),arccurve)
-            arc1 = arc1.cut(Part.makeCylinder(arcrad-(sgwidth/2),pcb_copper,FreeCAD.Vector(0,0,0),FreeCAD.Vector(0,0,1),arccurve))
+            arc1 = Part.makeCylinder(arcrad+(sgwidth/2),signal_pcb_copper,FreeCAD.Vector(0,0,0),FreeCAD.Vector(0,0,1),arccurve)
+            arc1 = arc1.cut(Part.makeCylinder(arcrad-(sgwidth/2),signal_pcb_copper,FreeCAD.Vector(0,0,0),FreeCAD.Vector(0,0,1),arccurve))
             if sgw.getAttribute("layer")=="1":
               layer1_not_empty = 1
               arc1.Placement = FreeCAD.Placement(FreeCAD.Vector(arcx, arcy, (0.5*pcb_thickness)), FreeCAD.Rotation(eulerToQuaternion(arcstart, 0, 0)))
@@ -409,9 +412,9 @@ def showsignals(bfile1):
               lay15_shapes.append(arc1)
             elif sgw.getAttribute("layer")=="16":
               layer16_not_empty = 1
-              arc1.Placement = FreeCAD.Placement(FreeCAD.Vector(arcx, arcy, (-0.5*pcb_thickness)-pcb_copper), FreeCAD.Rotation(eulerToQuaternion(arcstart, 0, 0)))
-              cyl1.Placement = FreeCAD.Placement(FreeCAD.Vector(sgx1, sgy1, (-0.5*pcb_thickness)-pcb_copper), FreeCAD.Rotation(eulerToQuaternion(0, 0, 0)))
-              cyl2.Placement = FreeCAD.Placement(FreeCAD.Vector(sgx2, sgy2, (-0.5*pcb_thickness)-pcb_copper), FreeCAD.Rotation(eulerToQuaternion(0, 0, 0)))
+              arc1.Placement = FreeCAD.Placement(FreeCAD.Vector(arcx, arcy, (-0.5*pcb_thickness)-signal_pcb_copper), FreeCAD.Rotation(eulerToQuaternion(arcstart, 0, 0)))
+              cyl1.Placement = FreeCAD.Placement(FreeCAD.Vector(sgx1, sgy1, (-0.5*pcb_thickness)-signal_pcb_copper), FreeCAD.Rotation(eulerToQuaternion(0, 0, 0)))
+              cyl2.Placement = FreeCAD.Placement(FreeCAD.Vector(sgx2, sgy2, (-0.5*pcb_thickness)-signal_pcb_copper), FreeCAD.Rotation(eulerToQuaternion(0, 0, 0)))
               arc1=arc1.fuse(cyl1)
               arc1=arc1.fuse(cyl2)
               lay16_shapes.append(arc1)
@@ -426,44 +429,47 @@ def showsignals(bfile1):
         vdrill = float(sgw.getAttribute("drill"))
         restring = 0.2
         # Via ring auf top seite
-        vcyl= Part.makeCylinder((vdrill/2)+restring,pcb_copper,FreeCAD.Vector(vx,vy,(0.5*pcb_thickness)))
-        vcyl= vcyl.cut(Part.makeCylinder((vdrill/2),pcb_copper,FreeCAD.Vector(vx,vy,(0.5*pcb_thickness))))
+        vcyl= Part.makeCylinder((vdrill/2)+restring,signal_pcb_copper,FreeCAD.Vector(vx,vy,(0.5*pcb_thickness)))
+        vcyl= vcyl.cut(Part.makeCylinder((vdrill/2),signal_pcb_copper,FreeCAD.Vector(vx,vy,(0.5*pcb_thickness))))
         lay1_shapes.append(vcyl)
         # Durchkontaktierung (Huelse) --> top zugehoerigkeit
-        vcyl= Part.makeCylinder((vdrill/2)+pcb_copper,pcb_thickness,FreeCAD.Vector(vx,vy,-(0.5*pcb_thickness)))
+        vcyl= Part.makeCylinder((vdrill/2)+signal_pcb_copper,pcb_thickness,FreeCAD.Vector(vx,vy,-(0.5*pcb_thickness)))
         vcyl= vcyl.cut(Part.makeCylinder((vdrill/2),pcb_thickness,FreeCAD.Vector(vx,vy,-(0.5*pcb_thickness))))
         lay1_shapes.append(vcyl)
         # Via ring auf bottom seite
-        vcyl= Part.makeCylinder((vdrill/2)+restring,pcb_copper,FreeCAD.Vector(vx,vy,(-0.5*pcb_thickness)-pcb_copper))
-        vcyl= vcyl.cut(Part.makeCylinder((vdrill/2),pcb_copper,FreeCAD.Vector(vx,vy,(-0.5*pcb_thickness)-pcb_copper)))
+        vcyl= Part.makeCylinder((vdrill/2)+restring,signal_pcb_copper,FreeCAD.Vector(vx,vy,(-0.5*pcb_thickness)-signal_pcb_copper))
+        vcyl= vcyl.cut(Part.makeCylinder((vdrill/2),signal_pcb_copper,FreeCAD.Vector(vx,vy,(-0.5*pcb_thickness)-signal_pcb_copper)))
         lay16_shapes.append(vcyl)
     
     if(layer1_not_empty==1):
       comp=Part.Compound(lay1_shapes)
       Part.show(comp)
-      FreeCAD.getDocument(FreeCAD.activeDocument().Name).ActiveObject.Label="TSIG_"+sgname
+      FreeCAD.getDocument(FreeCAD.activeDocument().Name).ActiveObject.Label=sgname+"_TSIG"
       FreeCADGui.getDocument(docname).ActiveObject.ShapeColor=(0.,(85./255.),0.)
       FreeCAD.activeDocument().getObject("SIGNALS").addObject(FreeCAD.getDocument(FreeCAD.activeDocument().Name).ActiveObject)
     if(layer2_not_empty==1):
       comp=Part.Compound(lay2_shapes)
       Part.show(comp)
-      FreeCAD.getDocument(FreeCAD.activeDocument().Name).ActiveObject.Label="IN1SIG_"+sgname
+      FreeCAD.getDocument(FreeCAD.activeDocument().Name).ActiveObject.Label=sgname+"_IN1SIG"
       FreeCADGui.getDocument(docname).ActiveObject.ShapeColor=((218./255.),(138./255.),(103./255.))
       FreeCAD.activeDocument().getObject("SIGNALS").addObject(FreeCAD.getDocument(FreeCAD.activeDocument().Name).ActiveObject)
     if(layer15_not_empty==1):
       comp=Part.Compound(lay15_shapes)
       Part.show(comp)
-      FreeCAD.getDocument(FreeCAD.activeDocument().Name).ActiveObject.Label="IN2SIG_"+sgname
+      FreeCAD.getDocument(FreeCAD.activeDocument().Name).ActiveObject.Label=sgname+"_IN2SIG"
       FreeCADGui.getDocument(docname).ActiveObject.ShapeColor=((218./255.),(138./255.),(103./255.))
       FreeCAD.activeDocument().getObject("SIGNALS").addObject(FreeCAD.getDocument(FreeCAD.activeDocument().Name).ActiveObject)
     if(layer16_not_empty==1):
       comp=Part.Compound(lay16_shapes)
       Part.show(comp)
-      FreeCAD.getDocument(FreeCAD.activeDocument().Name).ActiveObject.Label="BSIG_"+sgname
+      FreeCAD.getDocument(FreeCAD.activeDocument().Name).ActiveObject.Label=sgname+"_BSIG"
       FreeCADGui.getDocument(docname).ActiveObject.ShapeColor=(0.,(85./255.),0.)
       FreeCAD.activeDocument().getObject("SIGNALS").addObject(FreeCAD.getDocument(FreeCAD.activeDocument().Name).ActiveObject)
 
 
+# ******************************************************************************
+# Opens a secondary FreeCAD FCStd file and copies all visible objects to the 
+# current FreeCAD document (should be a kind of import functionality)
 def insertfcstd(fcstdpath, dname):
   mydoc=FreeCAD.activeDocument()
   mydocname=FreeCAD.activeDocument().Name
@@ -480,7 +486,10 @@ def insertfcstd(fcstdpath, dname):
   FreeCAD.closeDocument(opendocname)
   FreeCAD.setActiveDocument(mydocname)
 
+
+# ******************************************************************************
 # Extracts a Part out of boardfile lib
+# Currently not used / activated
 def partextract(brdfile, plabel, pname, fusetol=0.0):
   extrusions = []
   edges = []
@@ -541,10 +550,8 @@ def partextract(brdfile, plabel, pname, fusetol=0.0):
         FreeCAD.getDocument(FreeCAD.activeDocument().Name).ActiveObject.Label=plabel
 
 
-
 def placeparts(brdfile):
   #global pack_excludelist
-  
   xmax=0.
   xmin=0.
   ymax=0.
@@ -566,25 +573,20 @@ def placeparts(brdfile):
     name = x.getAttribute("name")
     package = x.getAttribute("package")
     posx = float(x.getAttribute("x"))
+    posy = float(x.getAttribute("y"))
     
-    # if DIAGNOSTIC==1:
-      # diagfile=__builtin__.open(diag_path+diag_filename, "a")
-      # diagfile.writelines("Place new package:"+package+"\n")
-      # diagfile.close()
-    
+    # store min and max values for later use in PCB board-generation
     if (posx>xmax):
       xmax=posx
     elif (posx<xmin):
       xmin=posx
-    
-    posy = float(x.getAttribute("y"))
-    
+
     if (posy>ymax):
       ymax=posy
     elif (posy<ymin):
       ymin=posy
     
-    # Check if Part is in exclude list
+    # Check if package of the part is in exclude list
     part_np=0
     for pex in pack_excludelist:
       # diagfile=__builtin__.open(diag_path+diag_filename, "a")
@@ -595,17 +597,7 @@ def placeparts(brdfile):
         break
       else:
         part_np=0
-        
-    # if DIAGNOSTIC==1:
-      # if part_np==1:
-        # diagfile=__builtin__.open(diag_path+diag_filename, "a")
-        # diagfile.writelines("Part with:"+package+" not placed\n")
-        # diagfile.close()
-      # else:
-        # diagfile=__builtin__.open(diag_path+diag_filename, "a")
-        # diagfile.writelines("Part with:"+package+" placed\n")
-        # diagfile.close()           
-    
+
     if part_np==0:    
       angle_str = x.getAttribute("rot")
       if string.find(angle_str, "MR")==0:
@@ -650,13 +642,13 @@ def placeparts(brdfile):
           # FreeCAD.getDocument(docname).ActiveObject.Label = name + "_" + FreeCAD.getDocument(docname).ActiveObject.Label
           FreeCAD.getDocument(docname).ActiveObject.Label = name + "_" + string.split(lib_file[idx],".")[0]
         
-        if DIAGNOSTIC==1:
+        if DIAGNOSTIC==True:
           diagfile=__builtin__.open(diag_path+diag_filename, "a")
           diagfile.writelines("Placed part: "+name+" with package "+package+"\n")
           diagfile.close()
       except ValueError:
         idx = 0
-        if DIAGNOSTIC==1:
+        if DIAGNOSTIC==True:
           diagfile=__builtin__.open(diag_path+diag_filename, "a")
           diagfile.writelines("Not found package: "+package+" for part "+name+"\n")
           diagfile.close()
@@ -676,9 +668,9 @@ def placeparts(brdfile):
             nf.translate(FreeCAD.Vector(posx, posy, ((0.5*pcb_thickness)+ballradius)))
           Part.show(nf)
           FreeCADGui.getDocument(docname).ActiveObject.ShapeColor=(1.,0.,0.)
-          FreeCAD.getDocument(docname).ActiveObject.Label = name + "_NOTFOUND_" + package
+          FreeCAD.getDocument(docname).ActiveObject.Label = "NOTFOUND_" + name + "_" + package
     else:
-      if DIAGNOSTIC==1:
+      if DIAGNOSTIC==True:
         diagfile=__builtin__.open(diag_path+diag_filename, "a")
         diagfile.writelines("Not placed package: "+package+" for part "+name+" because of excludelist.\n")
         diagfile.close()
