@@ -16,11 +16,18 @@
 <trans package="CAPC2012N" file="CAPC2012X130.FCStd" desc="" movx="0" movy="0" movz="0" rotx="0" roty="0" rotz="0"/>
 <trans package="CAPC3216M" file="CAP1206_kemet.FCStd" desc="" movx="0" movy="0" movz="0" rotx="0" roty="0" rotz="0"/>
 <trans package="CAPC3216N" file="CAP1206_kemet.FCStd" desc="" movx="0" movy="0" movz="0" rotx="0" roty="0" rotz="0"/>
-<trans package="SOT95P237X111-3M" file="SW3dPS-3-lead_sot23-3_mod.FCStd" desc="" movx="0" movy="0" movz="0" rotx="0" roty="0" rotz="0"/>
-<trans package="SOT95P237X111-3N" file="SW3dPS-3-lead_sot23-3_mod.FCStd" desc="" movx="0" movy="0" movz="0" rotx="0" roty="0" rotz="0"/>
-<trans package="SOT95P237X112-3N" file="SW3dPS-3-lead_sot23-3_mod.FCStd" desc="" movx="0" movy="0" movz="0" rotx="0" roty="0" rotz="0"/>
+<trans package="CAPPR750W80D1600H2000" file="CAPPR750W80D1600H2000.FCStd" desc="" movx="0" movy="0" movz="0" rotx="0" roty="0" rotz="0"/>
+<trans package="CAPPR200W50D500H1100" file="CAPPR200W50D500H1100.FCStd" desc="" movx="0" movy="0" movz="0" rotx="0" roty="0" rotz="0"/>
+<trans package="CAPARV1500W80L1750T700H1350" file="CAPARV1500W80L1750T700H1350.FCStd" desc="" movx="0" movy="0" movz="0" rotx="0" roty="0" rotz="0"/>
+<trans package="CAPARV1000W60L1300T600H1200" file="CAPARV1000W60L1300T600H1200.FCStd" desc="" movx="0" movy="0" movz="0" rotx="0" roty="0" rotz="0"/>
+<trans package="CAPPR750W80D1800H2500" file="CAPPR750W80D1800H2500.FCStd" desc="" movx="0" movy="0" movz="0" rotx="0" roty="0" rotz="0"/>
 <trans package="MINI-USB_SHIELD5P4" file="USB_mini_B.FCStd" desc="" movx="-3.3" movy="0" movz="0" rotx="90" roty="0" rotz="-90"/>
 <trans package="HDRV8W64P254_1X8_2032X254X838B" file="pin_header_aw_108_08-t.stp" desc="" movx="0" movy="0" movz="0" rotx="-90" roty="0" rotz="0"/>
-<trans package="DIOC2012X95N" file="DIOC2012.FCStd" desc="" movx="0" movy="0" movz="0" rotx="0" roty="0" rotz="0"/>
-<trans package="DIOC2012X95M" file="DIOC2012.FCStd" desc="" movx="0" movy="0" movz="0" rotx="0" roty="0" rotz="0"/>
+<trans package="IND_RN212" file="SCHAFFNER_RN212.FCStd" desc="" movx="-6.4" movy="-9.15" movz="0" rotx="0" roty="0" rotz="0"/>
+<trans package="FUSE508W60D850H800" file="FUSE_TR5.FCStd" desc="" movx="0" movy="0" movz="0" rotx="0" roty="0" rotz="0"/>
+<trans package="TP100" file="TP100.FCStd" desc="" movx="0" movy="0" movz="0" rotx="0" roty="0" rotz="0"/>
+<trans package="TP105P60D" file="TP105P60D.FCStd" desc="" movx="0" movy="0" movz="0" rotx="0" roty="0" rotz="0"/>
+<trans package="TP080" file="TP080.FCStd" desc="" movx="0" movy="0" movz="0" rotx="0" roty="0" rotz="0"/>
+<trans package="INDC3216N" file="INDC3216X125N.FCStd" desc="" movx="0" movy="0" movz="0" rotx="0" roty="0" rotz="0"/>
+<trans package="QFN50P700X700X100-45N" file="QFN50P700X700X100-45N.FCStd" desc="" movx="0" movy="0" movz="0" rotx="0" roty="0" rotz="0"/>
 </translib>
