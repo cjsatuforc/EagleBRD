@@ -1,5 +1,31 @@
-#####################################################################################
+################################################################################
+# FreeCAD module named EagleBRD for Importing Eagle 6.x .brd files into FreeCAD#
+################################################################################
 
-FreeCAD module named EagleBRD for Importing Cadsoft Eagle 6.x .brd files into FreeCAD
+This project started in the end of 2011 as i was playing around with FreeCAD and 
+the first versions of Cadsoft EAGLE 6.x. 
+Some tools were available at this time (EagleUP, Eagle3D, ...) but most of them 
+use SketchUp wich i don't want to use ore generate only a 3D picture which can 
+not be used in further CAD modeling.
 
-#####################################################################################
+This Mod for FreeCAD should help out.
+
+Usage:
+1. Generate a folder named "EagleBRD" in the /Mod/ path of FreeCAD 
+   (There should be folders like /Arch/ /Complete/ /Draft/ ...)
+2. Copy all depending files into this folder 
+   This should give
+   .../Mod/EagleBRD/
+                   |- Init.py
+                   |- EagleBRD.py
+                   |- /lib/
+                           |- translib.xml
+                           |- ...partfiles...
+3. Start FreeCAD
+4. Open a Eagle 6.x *.brd with FreeCAD or use drag-and-drop and drop it into 
+   FreeCAD Window
+5. Wait...wait...
+6. Now you should get a 3D view of your PCB (or only errors and nothing else:( )
+
+
+
