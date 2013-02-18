@@ -104,7 +104,9 @@ LAYER_3D_NUMBER = "57"
 #domlib = xml.dom.minidom.parse(libFilePath)
 
 
-# --------------------
+# ******************************************************************************
+# This function was called after opening a Eagle .brd file with FreeCAD
+# == main()
 def open(filename):
     """called when freecad opens an BRD file"""
     #docname1 = os.path.splitext(os.path.basename(filename))[0]
@@ -117,8 +119,11 @@ def open(filename):
     placeparts(dom)
 
 
+# ******************************************************************************
+# This function was called after importing a Eagle .brd file with FreeCAD
+# == main()
 def insert(filename,docname1):
-    """called when freecad imports an Emn file"""
+    """called when freecad imports an BRD file"""
     #FreeCAD.setActiveDocument(docname1)
     #doc=FreeCAD.getDocument(docname1)
     #FreeCAD.Console.PrintMessage('Started import of "'+filename+'" file')
@@ -126,9 +131,11 @@ def insert(filename,docname1):
     configsystem(filename)
     dom = xml.dom.minidom.parse(filename)
     placeparts(dom)
-#--------------------
 
 
+# ******************************************************************************
+# This function does the standard configuration and reads out an optinal .cfg
+# file for overriding the standard values
 def configsystem(fname):
   global pcb_thickness
   global docname
@@ -209,7 +216,10 @@ def configsystem(fname):
       diagfile=__builtin__.open(diag_path+diag_filename, "a")
       diagfile.writelines("Config file not found. Using standard Values.\n")
       diagfile.close()
-        
+
+
+# ******************************************************************************
+# This function converts euler angle format to FreeCAD Quaternion format
 def eulerToQuaternion(yaw=0.0, pitch=0.0, roll=0.0):
   yaw = math.radians(yaw)
   pitch = math.radians(pitch)
@@ -230,14 +240,9 @@ def eulerToQuaternion(yaw=0.0, pitch=0.0, roll=0.0):
   return FreeCAD.Rotation(q1, q2, q3, q4)
 
 
-def find(str, ch):
-  index = 0
-  while index < len(str):
-    if str[index] == ch:
-      return index
-    index = index + 1
-  return -1 
-
+# ******************************************************************************
+# This function parses the library-translation-file an sets the depending 
+# variables an arrays
 def parselibfile():
   domlib = xml.dom.minidom.parse(libFilePath)
   lib1 = domlib.getElementsByTagName("translib")[0]
@@ -253,18 +258,16 @@ def parselibfile():
       lib_roty.append(t.getAttribute("roty"))
       lib_rotz.append(t.getAttribute("rotz"))
 
-#def parseboardfile(brdfile):
 
-# anngle in degree
+# ******************************************************************************
+# This function converts ARC values  from Eagle to Values for FreeCAD
+# input:
+# ax1/ay1 == startingpoint, ax2/ay2 == endpoint, aangle=included angle in degree
+# output:
+# centerx/y == coordinates of circle, radius=radios of circle, 
+# startangle/endangle are the angles of the arc in degree
+#
 def convertarcvalues(ax1,ay1,ax2,ay2,aangle):
-  # if aangle<0:
-    # aangle=-aangle
-    # mkr=ax1
-    # ax1=ax2
-    # ax2=mkr
-    # mkr=ay1
-    # ay1=ay2
-    # ay2=mkr
   dist1 = math.sqrt(math.pow((ax1-ax2),2)+math.pow((ay1-ay2),2))
   # Radius of ARC
   radius = dist1/math.sqrt(2.0*(1.0-math.cos(math.radians(aangle))))
@@ -284,12 +287,6 @@ def convertarcvalues(ax1,ay1,ax2,ay2,aangle):
   else:
     centery = ym-dy
     centerx = xm-dx
-  # if ax1<ax2:
-    # centery = ym-dy
-    # centerx = xm-dx
-  # else:
-    # centery = ym+dy
-    # centerx = xm+dx
   startangle = math.atan2((ay1-centery),(ax1-centerx))*180.0/math.pi
   endangle = startangle + aangle
   if (startangle < 0.0) or (endangle<0.0):
@@ -550,6 +547,9 @@ def partextract(brdfile, plabel, pname, fusetol=0.0):
         FreeCAD.getDocument(FreeCAD.activeDocument().Name).ActiveObject.Label=plabel
 
 
+# ******************************************************************************
+# This function was the main functional block. It places the parts and calls 
+# other functions for generationg the output
 def placeparts(brdfile):
   #global pack_excludelist
   xmax=0.
@@ -559,10 +559,10 @@ def placeparts(brdfile):
   
   FreeCAD.newDocument(docname)
   
-  # Parse the XML Translation Library file
+  # Parse the XML translation library file
   parselibfile()
   
-  # Get the Eagle Board File elements
+  # Get the Eagle Board file elements
   path1 = brdfile.getElementsByTagName("eagle")[0]
   path2 = path1.getElementsByTagName("drawing")[0]
   path3 = path2.getElementsByTagName("board")[0]
