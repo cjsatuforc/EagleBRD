@@ -38,13 +38,22 @@
 <trans package="CAPC3216N" file="CAP_CHIP_3216X160.FCStd" movx="0" movy="0" movz="0" rotx="0" roty="0" rotz="0" desc=""/>
 <trans package="CAPPR750W80D1600H2000" file="CAPPR750W80D1600H2000.FCStd" movx="0" movy="0" movz="0" rotx="0" roty="0" rotz="0" desc=""/>
 <trans package="CAPPR200W50D500H1100" file="CAPPR200W50D500H1100.FCStd" movx="0" movy="0" movz="0" rotx="0" roty="0" rotz="0" desc=""/>
+<trans package="CAPPR500W60D1250H2000" file="CAPPR500W60D1250H2000.FCStd" movx="0" movy="0" movz="0" rotx="0" roty="0" rotz="0" desc=""/>
 <trans package="CAPARV1500W80L1750T700H1350" file="CAPARV1500W80L1750T700H1350.FCStd" movx="0" movy="0" movz="0" rotx="0" roty="0" rotz="0" desc=""/>
 <trans package="CAPARV1000W60L1300T600H1200" file="CAPARV1000W60L1300T600H1200.FCStd" movx="0" movy="0" movz="0" rotx="0" roty="0" rotz="0" desc=""/>
 <trans package="CAPPR750W80D1800H2500" file="CAPPR750W80D1800H2500.FCStd" movx="0" movy="0" movz="0" rotx="0" roty="0" rotz="0" desc=""/>
+<trans package="DIOB_MBS" file="RECTIFIER_MBS.FCStd" movx="0" movy="0" movz="0" rotx="0" roty="0" rotz="0" desc=""/>
 <trans package="IND_RN212" file="CHOKE_SCHAFFNER_RN212.FCStd" movx="-6.4" movy="-9.15" movz="0" rotx="0" roty="0" rotz="0" desc=""/>
+<trans package="IND_B82721-A" file="CHOKE_EPCOS_B82721A.FCStd" movx="0" movy="0" movz="0" rotx="0" roty="0" rotz="0" desc=""/>
+<trans package="IND_B82721-K" file="CHOKE_EPCOS_B82721K.FCStd" movx="0" movy="0" movz="0" rotx="0" roty="0" rotz="0" desc=""/>
 <trans package="FUSE508W60D850H800" file="FUSE_TR5.FCStd" movx="0" movy="0" movz="0" rotx="0" roty="0" rotz="0" desc=""/>
-<trans package="TP100" file="TP100.FCStd" movx="0" movy="0" movz="0" rotx="0" roty="0" rotz="0" desc=""/>
-<trans package="TP105P60D" file="TP105P60D.FCStd" movx="0" movy="0" movz="0" rotx="0" roty="0" rotz="0" desc=""/>
-<trans package="TP080" file="TP080.FCStd" movx="0" movy="0" movz="0" rotx="0" roty="0" rotz="0" desc=""/>
 <trans package="THERM_B57236" file="RESVAR_EPCOS_B57236.FCStd" movx="0" movy="0" movz="0" rotx="0" roty="0" rotz="0" desc=""/>
+<trans package="TP080" file="TP080.FCStd" movx="0" movy="0" movz="0" rotx="0" roty="0" rotz="0" desc=""/>
+<trans package="TP100" file="TP100.FCStd" movx="0" movy="0" movz="0" rotx="0" roty="0" rotz="0" desc=""/>
+<trans package="TP100X030" file="TP100X030.FCStd" movx="0" movy="0" movz="0" rotx="0" roty="0" rotz="0" desc=""/>
+<trans package="TP105P60D" file="TP105P60D.FCStd" movx="0" movy="0" movz="0" rotx="0" roty="0" rotz="0" desc=""/>
+<trans package="FID150X450ROUND" file="FID150X450ROUND.FCStd" movx="0" movy="0" movz="0" rotx="0" roty="0" rotz="0" desc=""/>
+<trans package="FID100X200ROUND" file="FID100X200ROUND.FCStd" movx="0" movy="0" movz="0" rotx="0" roty="0" rotz="0" desc=""/>
+<trans package="FID100X200" file="FID100X200ROUND.FCStd" movx="0" movy="0" movz="0" rotx="0" roty="0" rotz="0" desc=""/>
+<trans package="FID150X200CROSS" file="FID150X200CROSS.FCStd" movx="0" movy="0" movz="0" rotx="0" roty="0" rotz="0" desc=""/>
 </translib>
