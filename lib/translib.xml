@@ -47,6 +47,7 @@
 <trans package="IND_B82721-A" file="CHOKE_EPCOS_B82721A.FCStd" movx="0" movy="0" movz="0" rotx="0" roty="0" rotz="0" desc=""/>
 <trans package="IND_B82721-K" file="CHOKE_EPCOS_B82721K.FCStd" movx="0" movy="0" movz="0" rotx="0" roty="0" rotz="0" desc=""/>
 <trans package="FUSE508W60D850H800" file="FUSE_TR5.FCStd" movx="0" movy="0" movz="0" rotx="0" roty="0" rotz="0" desc=""/>
+<trans package="QFN50P400X400X80-21N" file="IC_QFN50P400X400X80_21.FCStd" movx="0" movy="0" movz="0" rotx="0" roty="0" rotz="0" desc=""/>
 <trans package="THERM_B57236" file="RESVAR_EPCOS_B57236.FCStd" movx="0" movy="0" movz="0" rotx="0" roty="0" rotz="0" desc=""/>
 <trans package="TP080" file="TP080.FCStd" movx="0" movy="0" movz="0" rotx="0" roty="0" rotz="0" desc=""/>
 <trans package="TP100" file="TP100.FCStd" movx="0" movy="0" movz="0" rotx="0" roty="0" rotz="0" desc=""/>
