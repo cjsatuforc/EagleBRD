@@ -96,8 +96,8 @@
 <libraries>
 <library name="xyz">
 <packages>
-<package name="LQFP48-7X7">
-<description>&lt;b&gt;LQFP48 &lt;/b&gt;&lt;p&gt;Low profile Quad Flat Package 7x7x1.4&lt;/p&gt;</description>
+<package name="QFP50P900X900X160-48N">
+<description>&lt;b&gt;LQFP48 &lt;/b&gt;&lt;p&gt;Low profile Quad Flat Package 9x9x1.x&lt;/p&gt;</description>
 <wire x1="-3.2" y1="3.2" x2="3.2" y2="3.2" width="0.2032" layer="21"/>
 <wire x1="3.2" y1="3.2" x2="3.2" y2="-3.2" width="0.2032" layer="21"/>
 <wire x1="3.2" y1="-3.2" x2="-3.2" y2="-3.2" width="0.2032" layer="21"/>
@@ -106,7 +106,6 @@
 <wire x1="-5" y1="5" x2="5" y2="5" width="0.127" layer="39"/>
 <wire x1="5" y1="5" x2="5" y2="-5" width="0.127" layer="39"/>
 <wire x1="5" y1="-5" x2="-5" y2="-5" width="0.127" layer="39"/>
-<circle x="-2.2499" y="-2.2499" radius="0.4998" width="0.2032" layer="21"/>
 <smd name="1" x="-2.75" y="-4.1" dx="0.3" dy="1.6" layer="1"/>
 <smd name="2" x="-2.25" y="-4.1" dx="0.3" dy="1.6" layer="1"/>
 <smd name="3" x="-1.75" y="-4.1" dx="0.3" dy="1.6" layer="1"/>
@@ -1208,7 +1207,7 @@ design rules under a new name.</description>
 </pass>
 </autorouter>
 <elements>
-<element name="IC1" library="xyz" package="LQFP48-7X7" value="" x="21.85" y="9.8" smashed="yes" rot="R180"/>
+<element name="IC1" library="xyz" package="QFP50P900X900X160-48N" value="" x="21.85" y="9.8" smashed="yes" rot="R90"/>
 <element name="IC2" library="v-reg-micrel" package="MSOP08" value="MIC5219-3.3YMM" x="4.3" y="17.75" smashed="yes" rot="R90">
 <attribute name="MF" value="" x="4.3" y="17.75" size="1.778" layer="27" rot="R90" display="off"/>
 <attribute name="MPN" value="" x="4.3" y="17.75" size="1.778" layer="27" rot="R90" display="off"/>

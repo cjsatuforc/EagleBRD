@@ -48,6 +48,9 @@
 <trans package="IND_B82721-K" file="CHOKE_EPCOS_B82721K.FCStd" movx="0" movy="0" movz="0" rotx="0" roty="0" rotz="0" desc=""/>
 <trans package="FUSE508W60D850H800" file="FUSE_TR5.FCStd" movx="0" movy="0" movz="0" rotx="0" roty="0" rotz="0" desc=""/>
 <trans package="QFN50P400X400X80-21N" file="IC_QFN50P400X400X80_21.FCStd" movx="0" movy="0" movz="0" rotx="0" roty="0" rotz="0" desc=""/>
+<trans package="QFP50P900X900X160-48N" file="IC_QFP50P900X900X160_48.FCStd" movx="0" movy="0" movz="0" rotx="0" roty="0" rotz="0" desc=""/>
+<trans package="QFP80P900X900X120-32N" file="IC_QFP80P900X900X120_32.FCStd" movx="0" movy="0" movz="0" rotx="0" roty="0" rotz="0" desc=""/>
+<trans package="QFP80P1200X1200X120-44N" file="IC_QFP80P1200X1200X120_44.FCStd" movx="0" movy="0" movz="0" rotx="0" roty="0" rotz="0" desc=""/>
 <trans package="SOIC127P600X175-8N" file="IC_SOIC127P600X175_8.FCStd" movx="0" movy="0" movz="0" rotx="0" roty="0" rotz="0" desc=""/>
 <trans package="SOIC127P600X175-8M" file="IC_SOIC127P600X175_8.FCStd" movx="0" movy="0" movz="0" rotx="0" roty="0" rotz="0" desc=""/>
 <trans package="SOIC127P600X175-8M_LF" file="IC_SOIC127P600X175_8.FCStd" movx="0" movy="0" movz="0" rotx="0" roty="0" rotz="0" desc=""/>
