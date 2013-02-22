@@ -81,6 +81,7 @@ signalgen = default_signalgen
 boardCADfilePath = ""
 #boardCADfilePath = libpath + "board.stl"
 libFilePath = libpath+"translib.xml"
+USR_libFilePath = libpath+"USR_translib.xml"
 DIAGNOSTIC = default_diagnostic
 diag_path = default_diag_path
 diag_filename = default_diag_filename
@@ -224,14 +225,14 @@ def eulerToQuaternion(yaw=0.0, pitch=0.0, roll=0.0):
   yaw = math.radians(yaw)
   pitch = math.radians(pitch)
   roll = math.radians(roll)
-
-  c1 = math.cos(yaw / 2)
-  c2 = math.cos(pitch / 2)
-  c3 = math.cos(roll / 2)
-  s1 = math.sin(yaw / 2)
-  s2 = math.sin(pitch / 2)
-  s3 = math.sin(roll / 2)
-
+  
+  c1 = math.cos(yaw / 2.)
+  c2 = math.cos(pitch / 2.)
+  c3 = math.cos(roll / 2.)
+  s1 = math.sin(yaw / 2.)
+  s2 = math.sin(pitch / 2.)
+  s3 = math.sin(roll / 2.)
+  
   q1 = c1 * c2 * s3 - s1 * s2 * c3
   q2 = c1 * s2 * c3 + s1 * c2 * s3
   q3 = s1 * c2 * c3 - c1 * s2 * s3
@@ -244,6 +245,21 @@ def eulerToQuaternion(yaw=0.0, pitch=0.0, roll=0.0):
 # This function parses the library-translation-file an sets the depending 
 # variables an arrays
 def parselibfile():
+  if os.path.isfile(USR_libFilePath):
+    USR_domlib = xml.dom.minidom.parse(USR_libFilePath)
+    USR_lib1 = USR_domlib.getElementsByTagName("translib")[0]
+    translations = USR_lib1.getElementsByTagName("trans")
+    for t in translations:
+      lib_pack.append(t.getAttribute("package"))
+      lib_file.append(t.getAttribute("file"))
+      lib_desc.append(t.getAttribute("desc"))
+      lib_movx.append(t.getAttribute("movx"))
+      lib_movy.append(t.getAttribute("movy"))
+      lib_movz.append(t.getAttribute("movz"))
+      lib_rotx.append(t.getAttribute("rotx"))
+      lib_roty.append(t.getAttribute("roty"))
+      lib_rotz.append(t.getAttribute("rotz"))
+  #-->standard translations
   domlib = xml.dom.minidom.parse(libFilePath)
   lib1 = domlib.getElementsByTagName("translib")[0]
   translations = lib1.getElementsByTagName("trans")
