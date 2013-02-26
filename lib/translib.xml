@@ -66,11 +66,15 @@
 <trans package="HDRV8W64P254_1X8_2032X254X838B" file="CON_HDRV8W64P254_1X8_820H.FCStd" movx="0" movy="0" movz="0" rotx="0" roty="0" rotz="0" desc=""/>
 <trans package="HDRV4W64P254_2X2_508X508X838B" file="CON_HDRV4W64P254_2X2_820H.FCStd" movx="0" movy="0" movz="0" rotx="0" roty="0" rotz="0" desc=""/>
 <trans package="HDRV6W64P254_2X3_762X508X838B" file="CON_HDRV6W64P254_2X3_820H.FCStd" movx="0" movy="0" movz="0" rotx="0" roty="0" rotz="0" desc=""/>
+<trans package="FUSE508W60L850T400H800" file="FUSE_TE5.FCStd" movx="0" movy="0" movz="0" rotx="0" roty="0" rotz="0" desc=""/>
 <trans package="FUSE508W60D850H800" file="FUSE_TR5.FCStd" movx="0" movy="0" movz="0" rotx="0" roty="0" rotz="0" desc=""/>
 <trans package="QFN50P400X400X80-21N" file="IC_QFN50P400X400X80_21.FCStd" movx="0" movy="0" movz="0" rotx="0" roty="0" rotz="0" desc=""/>
 <trans package="QFP50P900X900X160-48N" file="IC_QFP50P900X900X160_48.FCStd" movx="0" movy="0" movz="0" rotx="0" roty="0" rotz="0" desc=""/>
+<trans package="QFP50P1200X1200X160-64N" file="IC_QFP50P1200X1200X160_64.FCStd" movx="0" movy="0" movz="0" rotx="0" roty="0" rotz="0" desc=""/>
 <trans package="QFP80P900X900X120-32N" file="IC_QFP80P900X900X120_32.FCStd" movx="0" movy="0" movz="0" rotx="0" roty="0" rotz="0" desc=""/>
+<trans package="QFP80P900X900X160-32N" file="IC_QFP80P900X900X160_32.FCStd" movx="0" movy="0" movz="0" rotx="0" roty="0" rotz="0" desc=""/>
 <trans package="QFP80P1200X1200X120-44N" file="IC_QFP80P1200X1200X120_44.FCStd" movx="0" movy="0" movz="0" rotx="0" roty="0" rotz="0" desc=""/>
+<trans package="SOIC254P1040X485-8N" file="IC_SOIC254P1040X485_8.FCStd" movx="0" movy="0" movz="0" rotx="0" roty="0" rotz="0" desc=""/>
 <trans package="SOIC127P600X175-8N" file="IC_SOIC127P600X175_8.FCStd" movx="0" movy="0" movz="0" rotx="0" roty="0" rotz="0" desc=""/>
 <trans package="SOIC127P600X175-8M" file="IC_SOIC127P600X175_8.FCStd" movx="0" movy="0" movz="0" rotx="0" roty="0" rotz="0" desc=""/>
 <trans package="SOIC127P600X175-8M_LF" file="IC_SOIC127P600X175_8.FCStd" movx="0" movy="0" movz="0" rotx="0" roty="0" rotz="0" desc=""/>
