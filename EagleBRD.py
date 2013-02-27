@@ -145,6 +145,7 @@ def configsystem(fname):
   global pack_excludelist
    
   docname = string.replace(os.path.splitext(os.path.basename(fname))[0],'.','_')
+  docname = string.replace(docname,'-','_')
   #print os.path.dirname(fname)
   if DIAGNOSTIC==True:
     diagfile=__builtin__.open(diag_path+diag_filename, "w")
