@@ -91,7 +91,10 @@
 <trans package="SOP65P640X120-14N" file="IC_SOP65P640X120_14.FCStd" movx="0" movy="0" movz="0" rotx="0" roty="0" rotz="0" desc=""/>
 <trans package="SOP65P780X200-20N" file="IC_SOP65P780X200_20.FCStd" movx="0" movy="0" movz="0" rotx="0" roty="0" rotz="0" desc=""/>
 <trans package="SOP65P780X200-28N" file="IC_SOP65P780X200_28.FCStd" movx="0" movy="0" movz="0" rotx="0" roty="0" rotz="0" desc=""/>
+<trans package="SOT230P700X180-4N" file="IC_SOT230P700X180_4.FCStd" movx="0" movy="0" movz="0" rotx="0" roty="0" rotz="0" desc=""/>
+<trans package="SOT230P700X180-4M" file="IC_SOT230P700X180_4.FCStd" movx="0" movy="0" movz="0" rotx="0" roty="0" rotz="0" desc=""/>
 <trans package="THERM_B57236" file="RESVAR_EPCOS_B57236.FCStd" movx="0" movy="0" movz="0" rotx="0" roty="0" rotz="0" desc=""/>
+<trans package="OSCCC250X320X100-4N" file="OSCCC250X320X100_4.FCStd" movx="0" movy="0" movz="0" rotx="0" roty="0" rotz="0" desc=""/>
 <trans package="TP080" file="TP080.FCStd" movx="0" movy="0" movz="0" rotx="0" roty="0" rotz="0" desc=""/>
 <trans package="TP100" file="TP100.FCStd" movx="0" movy="0" movz="0" rotx="0" roty="0" rotz="0" desc=""/>
 <trans package="TP100X030" file="TP100X030.FCStd" movx="0" movy="0" movz="0" rotx="0" roty="0" rotz="0" desc=""/>
