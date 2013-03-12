@@ -39,6 +39,7 @@
 <trans package="CAPPR750W80D1600H2000" file="CAPPR750W80D1600H2000.FCStd" movx="0" movy="0" movz="0" rotx="0" roty="0" rotz="0" desc=""/>
 <trans package="CAPPR200W50D500H1100" file="CAPPR200W50D500H1100.FCStd" movx="0" movy="0" movz="0" rotx="0" roty="0" rotz="0" desc=""/>
 <trans package="CAPPR500W60D1250H2000" file="CAPPR500W60D1250H2000.FCStd" movx="0" movy="0" movz="0" rotx="0" roty="0" rotz="0" desc=""/>
+<trans package="CAPARV1500W60L1750T600H1200" file="CAPARV1500W60L1750T600H1200.FCStd" movx="0" movy="0" movz="0" rotx="0" roty="0" rotz="0" desc=""/>
 <trans package="CAPARV1500W80L1750T700H1350" file="CAPARV1500W80L1750T700H1350.FCStd" movx="0" movy="0" movz="0" rotx="0" roty="0" rotz="0" desc=""/>
 <trans package="CAPARV1000W60L1300T600H1200" file="CAPARV1000W60L1300T600H1200.FCStd" movx="0" movy="0" movz="0" rotx="0" roty="0" rotz="0" desc=""/>
 <trans package="CAPARV750W60L330T1050H1200" file="CAP_VISHAY_WYO_12MM.FCStd" movx="0" movy="0" movz="0" rotx="0" roty="0" rotz="0" desc=""/>
