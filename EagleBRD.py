@@ -327,6 +327,7 @@ def convertarcvalues(ax1,ay1,ax2,ay2,aangle):
 #
 def conv_arc_to_threepoint(ax1,ay1,ax2,ay2,aangle):
   Cx, Cy, rad, anglestart, angleend = convertarcvalues(ax1,ay1,ax2,ay2,aangle)
+  # Setting the angle of Vector of the ARC-middlepoint in the "middle"
   a_middle_x = float(rad) * math.cos( math.radians((float(angleend-anglestart))/2. + float(anglestart)) )
   a_middle_y = float(rad) * math.sin( math.radians((float(angleend-anglestart))/2. + float(anglestart)) )
   a_middle_x = a_middle_x + Cx
@@ -600,9 +601,11 @@ def boardextract(brdfile, plabel, fusetol=0.0):
   OUTLINE_TYPE_WIRE = 0
   OUTLINE_TYPE_ARC = 1
   OUTLINE_TYPE_CIRCLE = 2
-  OUTLINE_STATUS_NEW  = 0
-  OUTLINE_STATUS_USED = 1
   
+  OUTLINE_STATUS_UNDEFINED = 0
+  OUTLINE_STATUS_IS_OUTLINE = 1
+  OUTLINE_STATUS_IS_CUTOUT = 2
+  OUTLINE_STATUS_USED = 3
   
   while len(edges)>0:
     edges.pop()
@@ -620,6 +623,8 @@ def boardextract(brdfile, plabel, fusetol=0.0):
     board_outline_y2.pop()
   while len(board_outline_curve)>0:
     board_outline_curve.pop()
+  while len(board_outline_status)>0:
+    board_outline_status.pop()
     
   path1 = brdfile.getElementsByTagName("eagle")[0]
   path2 = path1.getElementsByTagName("drawing")[0]
@@ -640,6 +645,7 @@ def boardextract(brdfile, plabel, fusetol=0.0):
       board_outline_y1_or_My.append(float(WA.getAttribute("y1")))
       board_outline_x2_or_r.append(float(WA.getAttribute("x2")))
       board_outline_y2.append(float(WA.getAttribute("y2")))
+      board_outline_status.append(OUTLINE_STATUS_UNDEFINED)
   
   for C in circles:
     if C.getAttribute("layer")==LAYER_DIMENSION_NUMBER:
@@ -649,8 +655,91 @@ def boardextract(brdfile, plabel, fusetol=0.0):
       board_outline_y1_or_My.append(float(C.getAttribute("y")))
       board_outline_x2_or_r.append(float(C.getAttribute("radius")))
       board_outline_y2.append(float(0.0))
+      board_outline_status.append(OUTLINE_STATUS_UNDEFINED)
   
-  #testing
+  board_outline_found = False
+  # Check all Circles if one is the outline
+  for n in range(0,len(board_outline_type)):
+    if (board_outline_type[n]==OUTLINE_TYPE_CIRCLE) and (board_outline_status[n]==OUTLINE_STATUS_UNDEFINED):
+      FreeCAD.Console.PrintMessage("testing circle outline\n")
+      board_outline_found = True
+      if board_outline_x2_or_r[n] <= 2.:
+        board_outline_status[n] = OUTLINE_STATUS_IS_CUTOUT
+        board_outline_found = False
+      else:
+        Mx=board_outline_x1_or_Mx[n]
+        My=board_outline_y1_or_My[n]
+        r=board_outline_x2_or_r[n]
+        for k in range(0,len(board_outline_type)):
+          if (k!=n) and (board_outline_status[k]==OUTLINE_STATUS_UNDEFINED):
+            if (board_outline_type[k]==OUTLINE_TYPE_CIRCLE):
+              if board_outline_x2_or_r[k] == r:
+                # Set both to cutout, because two circle outlines is not possible 
+                board_outline_status[n]=OUTLINE_STATUS_IS_CUTOUT
+                board_outline_status[k]=OUTLINE_STATUS_IS_CUTOUT
+                board_outline_found = False
+                break
+              elif board_outline_x2_or_r[k] > r:
+                board_outline_status[n]=OUTLINE_STATUS_IS_CUTOUT
+                # circle k can be the outline
+                board_outline_found = False
+                break
+              else:
+                board_outline_status[k]=OUTLINE_STATUS_IS_CUTOUT
+                # circle n can still be the outline
+            elif (board_outline_type[k]==OUTLINE_TYPE_WIRE):
+              # check if one endpoint of wire is out of circle
+              phyt1 = board_outline_x1_or_Mx[k] - Mx
+              phyt1 = math.pow(phyt1,2)
+              phyt1 = phyt1 + math.pow((board_outline_y1_or_My[k]-My),2)
+              phyt1 = math.sqrt(phyt1)
+              phyt2 = board_outline_x2_or_r[k] - Mx
+              phyt2 = math.pow(phyt2,2)
+              phyt2 = phyt2 + math.pow((board_outline_y2[k]-My),2)
+              phyt2 = math.sqrt(phyt2)
+              if (phyt1 >= r) or (phyt2 >= r):
+                # the points ar out (or on) of the circle --> circle is not outline
+                board_outline_status[n]=OUTLINE_STATUS_IS_CUTOUT
+                board_outline_found = False
+                FreeCAD.Console.PrintMessage("circle is no outl bec WIRE\n")
+                break
+            elif (board_outline_type[k]==OUTLINE_TYPE_ARC):
+              # check if one markpoint of ARC is out of circle
+              phyt1 = board_outline_x1_or_Mx[k] - Mx
+              phyt1 = math.pow(phyt1,2)
+              phyt1 = phyt1 + math.pow((board_outline_y1_or_My[k]-My),2)
+              phyt1 = math.sqrt(phyt1)
+              phyt2 = board_outline_x2_or_r[k] - Mx
+              phyt2 = math.pow(phyt2,2)
+              phyt2 = phyt2 + math.pow((board_outline_y2[k]-My),2)
+              phyt2 = math.sqrt(phyt2)
+              #now calc first the middlepoint of ARC
+              wx1 = board_outline_x1_or_Mx[k]
+              wy1 = board_outline_y1_or_My[k]
+              wx2 = board_outline_x2_or_r[k]
+              wy2 = board_outline_y2[k]
+              arccurve = board_outline_curve[k]
+              ax1, ay1, a_middle_x, a_middle_y, ax2, ay2 = conv_arc_to_threepoint(wx1,wy1,wx2,wy2,arccurve)
+              phyt3 = a_middle_x - Mx
+              phyt3 = math.pow(phyt3,2)
+              phyt3 = phyt3 + math.pow((a_middle_y-My),2)
+              phyt3 = math.sqrt(phyt3)
+              if (phyt1 >= r) or (phyt2 >= r) or (phyt3 >= r):
+                # the points ar out (or on) of the circle --> circle is not outline
+                board_outline_status[n]=OUTLINE_STATUS_IS_CUTOUT
+                board_outline_found = False
+                FreeCAD.Console.PrintMessage("circle is no outline bec ARC\n")
+                break
+      if board_outline_found == True:
+        # flag not reset--> so circle [n] must be the outline!!
+        board_outline_status[n]=OUTLINE_STATUS_IS_OUTLINE
+        FreeCAD.Console.PrintMessage("found one circle outline\n")
+        break
+  
+  if board_outline_found == False:
+    FreeCAD.Console.PrintMessage("Currently no outline found\n")
+  
+  #testing d = xml.dom.minidom.parse('C:\\bin\\FreeCAD\\Mod\\EagleBRD\\cir_out.brd')
   #line   = Part.makeLine( beg, end )
   #arc    = Part.Edge( Part.Arc( Base.Vector(*beg), Base.Vector(*mid), Base.Vector(*end) ) )
   #helix  = Part.makeHelix( pitch, height, radius, degApexAngle )
@@ -661,13 +750,13 @@ def boardextract(brdfile, plabel, fusetol=0.0):
   for n in range(0,len(board_outline_type)):
     OUT = board_outline_type[n]
     if OUT==OUTLINE_TYPE_WIRE:
-      FreeCAD.Console.PrintMessage("line\n")
+      FreeCAD.Console.PrintMessage("added line\n")
       ln = Part.Line(Base.Vector(board_outline_x1_or_Mx[n],board_outline_y1_or_My[n],0.0),Base.Vector(board_outline_x2_or_r[n],board_outline_y2[n],0.0))
       wireseg = ln.toShape()
       #Part.show(wireseg)
       edges.append(wireseg)
     elif OUT==OUTLINE_TYPE_ARC:
-      FreeCAD.Console.PrintMessage("arc\n")
+      FreeCAD.Console.PrintMessage("added arc\n")
       wx1 = board_outline_x1_or_Mx[n]
       wy1 = board_outline_y1_or_My[n]
       wx2 = board_outline_x2_or_r[n]
