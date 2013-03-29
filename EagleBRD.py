@@ -281,7 +281,7 @@ def parselibfile():
 # input:
 # ax1/ay1 == startingpoint, ax2/ay2 == endpoint, aangle=included angle in degree
 # output:
-# centerx/y == coordinates of circle, radius=radios of circle, 
+# centerx/y == coordinates of circle, radius=radius of circle, 
 # startangle/endangle are the angles of the arc in degree
 #
 def convertarcvalues(ax1,ay1,ax2,ay2,aangle):
@@ -316,7 +316,24 @@ def convertarcvalues(ax1,ay1,ax2,ay2,aangle):
   return centerx, centery, radius, startangle, endangle
   #return centerx, centery, radius, startangle, endangle, xm, ym, dx, dy, m, a
 
-  
+
+# ******************************************************************************
+# Func converts ARC values from Eagle to Values for FreeCAD ARC (threepoints)
+# input:
+# ax1/ay1 == startingpoint, ax2/ay2 == endpoint, aangle=included angle in degree
+# output:
+# ax1/ax2/ay1/ay2 == coordinates of the start and endpoint of ARC,
+# a_middle_x/_y == Middlepoint on the ARC
+#
+def conv_arc_to_threepoint(ax1,ay1,ax2,ay2,aangle):
+  Cx, Cy, rad, anglestart, angleend = convertarcvalues(ax1,ay1,ax2,ay2,aangle)
+  a_middle_x = float(rad) * math.cos( math.radians((float(angleend-anglestart))/2. + float(anglestart)) )
+  a_middle_y = float(rad) * math.sin( math.radians((float(angleend-anglestart))/2. + float(anglestart)) )
+  a_middle_x = a_middle_x + Cx
+  a_middle_y = a_middle_y + Cy
+  return ax1, ay1, a_middle_x, a_middle_y, ax2, ay2
+
+
 # ******************************************************************************
 # Generates signals and VIA's out of *.brd copper layers and Group it into 
 # signalnames and layers
@@ -562,6 +579,128 @@ def partextract(brdfile, plabel, pname, fusetol=0.0):
 
         Part.show(tmp)
         FreeCAD.getDocument(FreeCAD.activeDocument().Name).ActiveObject.Label=plabel
+
+
+# ******************************************************************************
+# Extracts a board countour out of boardfile /plain/ section
+# Currently not used / activated
+def boardextract(brdfile, plabel, fusetol=0.0):
+  extrusions = []
+  edges = []
+  
+  board_outline_type = []
+  board_outline_x1_or_Mx = []
+  board_outline_y1_or_My = []
+  board_outline_x2_or_r = []
+  board_outline_y2 = []
+  board_outline_curve = []
+  board_outline_status = []
+  
+  LAYER_DIMENSION_NUMBER = "20"
+  OUTLINE_TYPE_WIRE = 0
+  OUTLINE_TYPE_ARC = 1
+  OUTLINE_TYPE_CIRCLE = 2
+  OUTLINE_STATUS_NEW  = 0
+  OUTLINE_STATUS_USED = 1
+  
+  
+  while len(edges)>0:
+    edges.pop()
+  while len(extrusions)>0:
+    extrusions.pop()
+  while len(board_outline_type)>0:
+    board_outline_type.pop()
+  while len(board_outline_x1_or_Mx)>0:
+    board_outline_x1_or_Mx.pop()
+  while len(board_outline_y1_or_My)>0:
+    board_outline_y1_or_My.pop()
+  while len(board_outline_x2_or_r)>0:
+    board_outline_x2_or_r.pop()
+  while len(board_outline_y2)>0:
+    board_outline_y2.pop()
+  while len(board_outline_curve)>0:
+    board_outline_curve.pop()
+    
+  path1 = brdfile.getElementsByTagName("eagle")[0]
+  path2 = path1.getElementsByTagName("drawing")[0]
+  path3 = path2.getElementsByTagName("board")[0]
+  path4 = path3.getElementsByTagName("plain")[0]
+  wiresarcs = path4.getElementsByTagName("wire")
+  circles = path4.getElementsByTagName("circle")
+  
+  for WA in wiresarcs:
+    if WA.getAttribute("layer")==LAYER_DIMENSION_NUMBER:
+      if WA.hasAttribute("curve"):
+        board_outline_curve.append(float(WA.getAttribute("curve")))
+        board_outline_type.append(OUTLINE_TYPE_ARC)
+      else:
+        board_outline_curve.append(float(0.0))
+        board_outline_type.append(OUTLINE_TYPE_WIRE)
+      board_outline_x1_or_Mx.append(float(WA.getAttribute("x1")))
+      board_outline_y1_or_My.append(float(WA.getAttribute("y1")))
+      board_outline_x2_or_r.append(float(WA.getAttribute("x2")))
+      board_outline_y2.append(float(WA.getAttribute("y2")))
+  
+  for C in circles:
+    if C.getAttribute("layer")==LAYER_DIMENSION_NUMBER:
+      board_outline_curve.append(float(0.0))
+      board_outline_type.append(OUTLINE_TYPE_CIRCLE)
+      board_outline_x1_or_Mx.append(float(C.getAttribute("x")))
+      board_outline_y1_or_My.append(float(C.getAttribute("y")))
+      board_outline_x2_or_r.append(float(C.getAttribute("radius")))
+      board_outline_y2.append(float(0.0))
+  
+  #testing
+  #line   = Part.makeLine( beg, end )
+  #arc    = Part.Edge( Part.Arc( Base.Vector(*beg), Base.Vector(*mid), Base.Vector(*end) ) )
+  #helix  = Part.makeHelix( pitch, height, radius, degApexAngle )
+  #circle = Part.makeCircle( radius, Base.Vector(*origin), Base.Vector(*direction) )
+  #for OUT in board_outline_type:
+  # todo: outline in lib nicht plain
+  # todo outline circles
+  for n in range(0,len(board_outline_type)):
+    OUT = board_outline_type[n]
+    if OUT==OUTLINE_TYPE_WIRE:
+      FreeCAD.Console.PrintMessage("line\n")
+      ln = Part.Line(Base.Vector(board_outline_x1_or_Mx[n],board_outline_y1_or_My[n],0.0),Base.Vector(board_outline_x2_or_r[n],board_outline_y2[n],0.0))
+      wireseg = ln.toShape()
+      #Part.show(wireseg)
+      edges.append(wireseg)
+    elif OUT==OUTLINE_TYPE_ARC:
+      FreeCAD.Console.PrintMessage("arc\n")
+      wx1 = board_outline_x1_or_Mx[n]
+      wy1 = board_outline_y1_or_My[n]
+      wx2 = board_outline_x2_or_r[n]
+      wy2 = board_outline_y2[n]
+      arccurve = board_outline_curve[n]
+      ax1, ay1, a_middle_x, a_middle_y, ax2, ay2 = conv_arc_to_threepoint(wx1,wy1,wx2,wy2,arccurve)
+      ar = Part.Arc(Base.Vector(ax1,ay1,0),Base.Vector(a_middle_x,a_middle_y,0),Base.Vector(ax2,ay2,0))
+      wireseg = ar.toShape()
+      #Part.show(wireseg)
+      edges.append(wireseg)
+  wi=Part.Wire(edges)
+  #Part.show(W)
+  if (wi.isClosed() == True):
+    # face nur wenn true
+    FACE = Part.Face(wi)
+    EX = FACE.extrude(Base.Vector(0,0,10))
+    Part.show(EX)
+  else:
+    Part.show(wi)
+  #shape = Part.Shape(edges)
+  #for v in shape.Vertexes: v.setTolerance(fusetol)
+  #Part.show(shape)
+  #W1 = Part.Wire(shape.Edges)
+  #F1 = Part.Face(W1)
+  #h =3.0
+  #E1 = F1.extrude(Base.Vector(0,0,h))
+  #Part.show(E1)
+  #extrusions.append(E1)
+  #tmp=extrusions[0]
+  #for n in range(1,len(extrusions)):
+  #tmp=tmp.fuse(extrusions[n])
+  #Part.show(tmp)
+  #FreeCAD.getDocument(FreeCAD.activeDocument().Name).ActiveObject.Label=plabel
 
 
 # ******************************************************************************
