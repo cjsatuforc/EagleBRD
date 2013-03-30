@@ -586,7 +586,9 @@ def partextract(brdfile, plabel, pname, fusetol=0.0):
 # Extracts a board countour out of boardfile /plain/ section
 # Currently not used / activated
 def boardextract(brdfile, plabel, fusetol=0.0):
-  extrusions = []
+  global pcb_thickness
+  extrusions_board = []
+  extrusions_cutouts = []
   edges = []
   
   board_outline_type = []
@@ -596,6 +598,7 @@ def boardextract(brdfile, plabel, fusetol=0.0):
   board_outline_y2 = []
   board_outline_curve = []
   board_outline_status = []
+  board_outline_name = []
   
   LAYER_DIMENSION_NUMBER = "20"
   OUTLINE_TYPE_WIRE = 0
@@ -609,8 +612,10 @@ def boardextract(brdfile, plabel, fusetol=0.0):
   
   while len(edges)>0:
     edges.pop()
-  while len(extrusions)>0:
-    extrusions.pop()
+  while len(extrusions_board)>0:
+    extrusions_board.pop()
+  while len(extrusions_cutouts)>0:
+    extrusions_cutouts.pop()
   while len(board_outline_type)>0:
     board_outline_type.pop()
   while len(board_outline_x1_or_Mx)>0:
@@ -625,6 +630,8 @@ def boardextract(brdfile, plabel, fusetol=0.0):
     board_outline_curve.pop()
   while len(board_outline_status)>0:
     board_outline_status.pop()
+  while len(board_outline_name)>0:
+    board_outline_name.pop()
     
   path1 = brdfile.getElementsByTagName("eagle")[0]
   path2 = path1.getElementsByTagName("drawing")[0]
@@ -632,7 +639,9 @@ def boardextract(brdfile, plabel, fusetol=0.0):
   path4 = path3.getElementsByTagName("plain")[0]
   wiresarcs = path4.getElementsByTagName("wire")
   circles = path4.getElementsByTagName("circle")
+  holes = path4.getElementsByTagName("hole")
   
+  # --- Add Dimension Layer elements out of .brd section named plain
   for WA in wiresarcs:
     if WA.getAttribute("layer")==LAYER_DIMENSION_NUMBER:
       if WA.hasAttribute("curve"):
@@ -646,6 +655,7 @@ def boardextract(brdfile, plabel, fusetol=0.0):
       board_outline_x2_or_r.append(float(WA.getAttribute("x2")))
       board_outline_y2.append(float(WA.getAttribute("y2")))
       board_outline_status.append(OUTLINE_STATUS_UNDEFINED)
+      board_outline_name.append("PLAIN")
   
   for C in circles:
     if C.getAttribute("layer")==LAYER_DIMENSION_NUMBER:
@@ -656,6 +666,20 @@ def boardextract(brdfile, plabel, fusetol=0.0):
       board_outline_x2_or_r.append(float(C.getAttribute("radius")))
       board_outline_y2.append(float(0.0))
       board_outline_status.append(OUTLINE_STATUS_UNDEFINED)
+      board_outline_name.append("PLAIN")
+  
+  for C in holes:
+    board_outline_curve.append(float(0.0))
+    board_outline_type.append(OUTLINE_TYPE_CIRCLE)
+    board_outline_x1_or_Mx.append(float(C.getAttribute("x")))
+    board_outline_y1_or_My.append(float(C.getAttribute("y")))
+    board_outline_x2_or_r.append(float(C.getAttribute("drill"))/2.)
+    board_outline_y2.append(float(0.0))
+    board_outline_status.append(OUTLINE_STATUS_UNDEFINED)
+    board_outline_name.append("PLAIN")
+  
+  # --- Add Dimension Layer elements out of .brd library sections if part was placed
+  #todo
   
   board_outline_found = False
   # Check all Circles if one is the outline
@@ -664,7 +688,7 @@ def boardextract(brdfile, plabel, fusetol=0.0):
       FreeCAD.Console.PrintMessage("testing circle outline\n")
       board_outline_found = True
       if board_outline_x2_or_r[n] <= 2.:
-        board_outline_status[n] = OUTLINE_STATUS_IS_CUTOUT
+        #board_outline_status[n] = OUTLINE_STATUS_IS_CUTOUT
         board_outline_found = False
       else:
         Mx=board_outline_x1_or_Mx[n]
@@ -737,59 +761,194 @@ def boardextract(brdfile, plabel, fusetol=0.0):
         break
   
   if board_outline_found == False:
-    FreeCAD.Console.PrintMessage("Currently no outline found\n")
+    # if outline is no circle, than check rest of wires and arcs for outline
+    FreeCAD.Console.PrintMessage("Searching outline in wires and arcs\n")
+    for n in range(0,len(board_outline_type)):
+      if (board_outline_type[n]!=OUTLINE_TYPE_CIRCLE) and (board_outline_status[n]==OUTLINE_STATUS_UNDEFINED):
+        # Set the startcondition and select first free point
+        firstoutline = n
+        xmin=board_outline_x1_or_Mx[n]
+        ymin=board_outline_y1_or_My[n]
+        break
+    for n in range(0,len(board_outline_type)):
+      if (board_outline_type[n]!=OUTLINE_TYPE_CIRCLE) and (board_outline_status[n]==OUTLINE_STATUS_UNDEFINED):
+        board_outline_found = True
+        if (board_outline_x1_or_Mx[n] < xmin) or ( (board_outline_x1_or_Mx[n]==xmin) and (board_outline_y1_or_My[n]<ymin)):
+          board_outline_found = False
+          firstoutline = n
+          xmin = board_outline_x1_or_Mx[n]
+          ymin = board_outline_y1_or_My[n]
+        if (board_outline_x2_or_r[n] < xmin) or ( (board_outline_x2_or_r[n]==xmin) and (board_outline_y2[n]<ymin)):
+          board_outline_found = False
+          firstoutline = n
+          xmin = board_outline_x2_or_r[n]
+          ymin = board_outline_y2[n]
+    if board_outline_found == True:
+      board_outline_status[firstoutline]=OUTLINE_STATUS_IS_OUTLINE
+      FreeCAD.Console.PrintMessage("found outline ")
+      FreeCAD.Console.PrintMessage(xmin)
+      FreeCAD.Console.PrintMessage("  ")
+      FreeCAD.Console.PrintMessage(ymin)
+      FreeCAD.Console.PrintMessage("\n")
   
-  #testing d = xml.dom.minidom.parse('C:\\bin\\FreeCAD\\Mod\\EagleBRD\\cir_out.brd')
-  #line   = Part.makeLine( beg, end )
-  #arc    = Part.Edge( Part.Arc( Base.Vector(*beg), Base.Vector(*mid), Base.Vector(*end) ) )
-  #helix  = Part.makeHelix( pitch, height, radius, degApexAngle )
-  #circle = Part.makeCircle( radius, Base.Vector(*origin), Base.Vector(*direction) )
-  #for OUT in board_outline_type:
-  # todo: outline in lib nicht plain
-  # todo outline circles
-  for n in range(0,len(board_outline_type)):
-    OUT = board_outline_type[n]
-    if OUT==OUTLINE_TYPE_WIRE:
-      FreeCAD.Console.PrintMessage("added line\n")
-      ln = Part.Line(Base.Vector(board_outline_x1_or_Mx[n],board_outline_y1_or_My[n],0.0),Base.Vector(board_outline_x2_or_r[n],board_outline_y2[n],0.0))
-      wireseg = ln.toShape()
-      #Part.show(wireseg)
-      edges.append(wireseg)
-    elif OUT==OUTLINE_TYPE_ARC:
-      FreeCAD.Console.PrintMessage("added arc\n")
-      wx1 = board_outline_x1_or_Mx[n]
-      wy1 = board_outline_y1_or_My[n]
-      wx2 = board_outline_x2_or_r[n]
-      wy2 = board_outline_y2[n]
-      arccurve = board_outline_curve[n]
-      ax1, ay1, a_middle_x, a_middle_y, ax2, ay2 = conv_arc_to_threepoint(wx1,wy1,wx2,wy2,arccurve)
-      ar = Part.Arc(Base.Vector(ax1,ay1,0),Base.Vector(a_middle_x,a_middle_y,0),Base.Vector(ax2,ay2,0))
-      wireseg = ar.toShape()
-      #Part.show(wireseg)
-      edges.append(wireseg)
-  wi=Part.Wire(edges)
-  #Part.show(W)
-  if (wi.isClosed() == True):
-    # face nur wenn true
-    FACE = Part.Face(wi)
-    EX = FACE.extrude(Base.Vector(0,0,10))
-    Part.show(EX)
-  else:
-    Part.show(wi)
-  #shape = Part.Shape(edges)
-  #for v in shape.Vertexes: v.setTolerance(fusetol)
-  #Part.show(shape)
-  #W1 = Part.Wire(shape.Edges)
-  #F1 = Part.Face(W1)
-  #h =3.0
-  #E1 = F1.extrude(Base.Vector(0,0,h))
-  #Part.show(E1)
-  #extrusions.append(E1)
-  #tmp=extrusions[0]
-  #for n in range(1,len(extrusions)):
-  #tmp=tmp.fuse(extrusions[n])
-  #Part.show(tmp)
-  #FreeCAD.getDocument(FreeCAD.activeDocument().Name).ActiveObject.Label=plabel
+  if board_outline_found == False:
+    FreeCAD.Console.PrintError("No board outline was found!!\n")
+  
+  board_generated = False
+  while board_generated != True:
+    FreeCAD.Console.PrintMessage("---NEW While --\n")
+    #board_generated = True
+    for n in range(0,len(board_outline_type)):
+      FreeCAD.Console.PrintMessage("n=")
+      FreeCAD.Console.PrintMessage(n)
+      FreeCAD.Console.PrintMessage("\n")
+      if (board_outline_status[n]!=OUTLINE_STATUS_USED):
+        # Set the startcondition for next free point
+        board_generated = False
+        wire_is_closed = False
+        endtype = OUTLINE_STATUS_IS_CUTOUT
+        while len(edges)>0:
+          edges.pop()
+        if board_outline_type[n]==OUTLINE_TYPE_CIRCLE:
+          FreeCAD.Console.PrintMessage("ADD direct seg CIRCLE ")
+          FreeCAD.Console.PrintMessage(n)
+          #FreeCAD.Console.PrintMessage("\n")
+          partCylinder = Part.makeCylinder(board_outline_x2_or_r[n],pcb_thickness,Base.Vector(board_outline_x1_or_Mx[n],board_outline_y1_or_My[n],-pcb_thickness/2.),Base.Vector(0,0,1),360)
+          #Part.show(partCylinder)
+          if (board_outline_status[n]==OUTLINE_STATUS_IS_OUTLINE):
+            extrusions_board.append(partCylinder)
+            board_outline_status[n]=OUTLINE_STATUS_USED
+            FreeCAD.Console.PrintMessage(" toOUT\n")
+          else:
+            extrusions_cutouts.append(partCylinder)
+            board_outline_status[n]=OUTLINE_STATUS_USED
+            FreeCAD.Console.PrintMessage(" toCUT\n")
+          board_generated = True
+          continue  #stop here and go to next n, because circle is one edge
+        else:
+          FreeCAD.Console.PrintMessage("START with new seg ")
+          FreeCAD.Console.PrintMessage(n)
+          FreeCAD.Console.PrintMessage("\n")
+          point_start_x = board_outline_x1_or_Mx[n]
+          point_start_y = board_outline_y1_or_My[n]
+          point_actual_x = point_start_x
+          point_actual_y = point_start_y
+          if (board_outline_status[n]==OUTLINE_STATUS_IS_OUTLINE):
+            endtype = OUTLINE_STATUS_IS_OUTLINE
+          # now search the following edges untile edges can be fused to closed wire
+          #import pdb; pdb.set_trace()
+          while wire_is_closed != True:
+            for k in range(0,len(board_outline_type)):
+              if (board_outline_status[k]!=OUTLINE_STATUS_USED) and (board_outline_type[k]!=OUTLINE_TYPE_CIRCLE) and (board_outline_name[k]==board_outline_name[n]):
+                FreeCAD.Console.PrintMessage(k)
+                FreeCAD.Console.PrintMessage("\n")
+                if (point_actual_x == board_outline_x1_or_Mx[k]) and (point_actual_y == board_outline_y1_or_My[k]):
+                  # TODO: add segment and set points actual to x2/y2
+                  if board_outline_type[k]==OUTLINE_TYPE_WIRE:
+                    FreeCAD.Console.PrintMessage("ADD seg WIRE ")
+                    FreeCAD.Console.PrintMessage(k)
+                    FreeCAD.Console.PrintMessage("\n")
+                    ln = Part.Line(Base.Vector(board_outline_x1_or_Mx[k],board_outline_y1_or_My[k],0.0),Base.Vector(board_outline_x2_or_r[k],board_outline_y2[k],0.0))
+                    wireseg = ln.toShape()
+                    edges.append(wireseg)
+                    # Check if one segment is Outline --> then all segments are outline
+                    if (board_outline_status[k]==OUTLINE_STATUS_IS_OUTLINE):
+                      endtype = OUTLINE_STATUS_IS_OUTLINE
+                  elif board_outline_type[k]==OUTLINE_TYPE_ARC:
+                    FreeCAD.Console.PrintMessage("ADD seg ARC ")
+                    FreeCAD.Console.PrintMessage(k)
+                    FreeCAD.Console.PrintMessage("\n")
+                    wx1 = board_outline_x1_or_Mx[k]
+                    wy1 = board_outline_y1_or_My[k]
+                    wx2 = board_outline_x2_or_r[k]
+                    wy2 = board_outline_y2[k]
+                    arccurve = board_outline_curve[k]
+                    ax1, ay1, a_middle_x, a_middle_y, ax2, ay2 = conv_arc_to_threepoint(wx1,wy1,wx2,wy2,arccurve)
+                    ar = Part.Arc(Base.Vector(ax1,ay1,0),Base.Vector(a_middle_x,a_middle_y,0),Base.Vector(ax2,ay2,0))
+                    wireseg = ar.toShape()
+                    edges.append(wireseg)
+                    # Check if one segment is Outline --> then all segments are outline
+                    if (board_outline_status[k]==OUTLINE_STATUS_IS_OUTLINE):
+                      endtype = OUTLINE_STATUS_IS_OUTLINE
+                  # Set actual point
+                  point_actual_x = board_outline_x2_or_r[k]
+                  point_actual_y = board_outline_y2[k]
+                  board_outline_status[k] = OUTLINE_STATUS_USED
+                  if (point_actual_x == point_start_x) and (point_actual_y == point_start_y):
+                    wire_is_closed = True
+                    break
+                elif (point_actual_x == board_outline_x2_or_r[k]) and (point_actual_y == board_outline_y2[k]):
+                  # add segment and set points actual to x1/y1
+                  if board_outline_type[k]==OUTLINE_TYPE_WIRE:
+                    FreeCAD.Console.PrintMessage("ADD seg WIRE ")
+                    FreeCAD.Console.PrintMessage(k)
+                    FreeCAD.Console.PrintMessage("\n")
+                    ln = Part.Line(Base.Vector(board_outline_x1_or_Mx[k],board_outline_y1_or_My[k],0.0),Base.Vector(board_outline_x2_or_r[k],board_outline_y2[k],0.0))
+                    wireseg = ln.toShape()
+                    edges.append(wireseg)
+                    # Check if one segment is Outline --> then all segments are outline
+                    if (board_outline_status[k]==OUTLINE_STATUS_IS_OUTLINE):
+                      endtype = OUTLINE_STATUS_IS_OUTLINE
+                  elif board_outline_type[k]==OUTLINE_TYPE_ARC:
+                    FreeCAD.Console.PrintMessage("ADD seg ARC ")
+                    FreeCAD.Console.PrintMessage(k)
+                    FreeCAD.Console.PrintMessage("\n")
+                    wx1 = board_outline_x1_or_Mx[k]
+                    wy1 = board_outline_y1_or_My[k]
+                    wx2 = board_outline_x2_or_r[k]
+                    wy2 = board_outline_y2[k]
+                    arccurve = board_outline_curve[k]
+                    ax1, ay1, a_middle_x, a_middle_y, ax2, ay2 = conv_arc_to_threepoint(wx1,wy1,wx2,wy2,arccurve)
+                    ar = Part.Arc(Base.Vector(ax1,ay1,0),Base.Vector(a_middle_x,a_middle_y,0),Base.Vector(ax2,ay2,0))
+                    wireseg = ar.toShape()
+                    edges.append(wireseg)
+                    # Check if one segment is Outline --> then all segments are outline
+                    if (board_outline_status[k]==OUTLINE_STATUS_IS_OUTLINE):
+                      endtype = OUTLINE_STATUS_IS_OUTLINE
+                  # Set actual point
+                  point_actual_x = board_outline_x1_or_Mx[k]
+                  point_actual_y = board_outline_y1_or_My[k]
+                  board_outline_status[k] = OUTLINE_STATUS_USED
+                  if (point_actual_x == point_start_x) and (point_actual_y == point_start_y):
+                    wire_is_closed = True
+                    break
+            if (wire_is_closed == True):
+              board_generated = True
+              wi=Part.Wire(edges)
+              if (wi.isClosed() == True):
+                # Make face if wire closed --> should be ever
+                FACE = Part.Face(wi)
+                EX = FACE.extrude(Base.Vector(0,0,pcb_thickness))
+                EX.translate(Base.Vector(0,0,-pcb_thickness/2.))
+                #Part.show(EX)
+              if (endtype==OUTLINE_STATUS_IS_OUTLINE):
+                extrusions_board.append(EX)
+                FreeCAD.Console.PrintMessage("Extrusion added to outline\n")
+              else:
+                extrusions_cutouts.append(EX)
+                FreeCAD.Console.PrintMessage("Extrusion added to cutouts\n")
+  
+  FreeCAD.Console.PrintMessage("Number of outline extrusions ")
+  FreeCAD.Console.PrintMessage(len(extrusions_cutouts))
+  FreeCAD.Console.PrintMessage("\n")
+  board=extrusions_board[0]
+  for n in range(1,len(extrusions_board)):
+    board=board.fuse(extrusions_board[n])
+  
+  FreeCAD.Console.PrintMessage("Number of cutout extrusions ")
+  FreeCAD.Console.PrintMessage(len(extrusions_cutouts))
+  FreeCAD.Console.PrintMessage("\n")
+  if (len(extrusions_cutouts)>0):
+    cuts=extrusions_cutouts[0]
+    for n in range(1,len(extrusions_cutouts)):
+      cuts=cuts.fuse(extrusions_cutouts[n])
+    board = board.cut(cuts)
+  
+  Part.show(board)
+  FreeCADGui.getDocument(docname).ActiveObject.ShapeColor=(0.,(170./255.),0.)
+  FreeCAD.getDocument(docname).ActiveObject.Label = "BOARD"
+  #FreeCADGui.ActiveDocument.ActiveObject.ShapeColor=(0.,(170./255.),0.)
+  #FreeCAD.ActiveDocument.ActiveObject.Label = "BOARD"
 
 
 # ******************************************************************************
