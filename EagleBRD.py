@@ -585,7 +585,8 @@ def partextract(brdfile, plabel, pname, fusetol=0.0):
 # ******************************************************************************
 # Extracts a board countour out of boardfile /plain/ section
 # Currently not used / activated
-def boardextract(brdfile, plabel, fusetol=0.0):
+# d = xml.dom.minidom.parse('C:\\bin\\FreeCAD\\Mod\\EagleBRD\\cir_out.brd')
+def extract_board(brdfile, plabel, fusetol=0.0):
   global pcb_thickness
   extrusions_board = []
   extrusions_cutouts = []
@@ -637,6 +638,10 @@ def boardextract(brdfile, plabel, fusetol=0.0):
   path2 = path1.getElementsByTagName("drawing")[0]
   path3 = path2.getElementsByTagName("board")[0]
   path4 = path3.getElementsByTagName("plain")[0]
+  pathE = path3.getElementsByTagName("elements")[0]
+  pathL = path3.getElementsByTagName("libraries")[0]
+  libs = pathL.getElementsByTagName("library")
+  elements = pathE.getElementsByTagName("element")
   wiresarcs = path4.getElementsByTagName("wire")
   circles = path4.getElementsByTagName("circle")
   holes = path4.getElementsByTagName("hole")
@@ -679,7 +684,99 @@ def boardextract(brdfile, plabel, fusetol=0.0):
     board_outline_name.append("PLAIN")
   
   # --- Add Dimension Layer elements out of .brd library sections if part was placed
-  #todo
+  # todo move and rotate al points depending on placement
+  for L in libs:
+    packages = L.getElementsByTagName("packages")[0]
+    packs = packages.getElementsByTagName("package")
+    for P in packs:
+      #todo check holes, drills, pads,...
+      packwire=P.getElementsByTagName("wire")
+      for PW in packwire:
+        if PW.getAttribute("layer")==LAYER_DIMENSION_NUMBER:
+          for E in elements:
+            if (E.getAttribute("library")==L.getAttribute("name")) and (E.getAttribute("package")==P.getAttribute("name")):
+              #todo check all elements if libname and 
+              if PW.hasAttribute("curve"):
+                board_outline_curve.append(float(PW.getAttribute("curve")))
+                board_outline_type.append(OUTLINE_TYPE_ARC)
+              else:
+                board_outline_curve.append(float(0.0))
+                board_outline_type.append(OUTLINE_TYPE_WIRE)
+              board_outline_x1_or_Mx.append(float(PW.getAttribute("x1")))
+              board_outline_y1_or_My.append(float(PW.getAttribute("y1")))
+              board_outline_x2_or_r.append(float(PW.getAttribute("x2")))
+              board_outline_y2.append(float(PW.getAttribute("y2")))
+              board_outline_status.append(OUTLINE_STATUS_UNDEFINED)
+              board_outline_name.append(E.getAttribute("name"))
+      # circles
+      packcircle=P.getElementsByTagName("circle")
+      for PC in packcircle:
+        if PC.getAttribute("layer")==LAYER_DIMENSION_NUMBER:
+          for E in elements:
+            if (E.getAttribute("library")==L.getAttribute("name")) and (E.getAttribute("package")==P.getAttribute("name")):
+              angle_str = E.getAttribute("rot")
+              if string.find(angle_str, "MR")==0:
+                angle = float(string.lstrip(angle_str,"MR"))
+                mirror = 1
+              elif string.find(angle_str, "R")==0:
+                angle = float(string.lstrip(angle_str,"R"))
+                mirror = 0
+              else:
+                angle = 0.0
+                mirror = 0
+              
+              vector1 = Base.Vector(float(PC.getAttribute("x")), float(PC.getAttribute("y")), 0)
+              line1 = Part.makeLine(Base.Vector(0,0,0), vector1)
+              line1.rotate(Base.Vector(0,0,0),Base.Vector(0,0,1),angle)
+              vector1 = line1.Edges[0].Vertexes[1].Point
+              if mirror == 1:
+                vector1.x = -vector1.x
+              vector1.x = vector1.x + float(E.getAttribute("x"))
+              vector1.y = vector1.y + float(E.getAttribute("y"))
+              
+              #todo check all elements if libname and
+              board_outline_curve.append(float(0.0))
+              board_outline_type.append(OUTLINE_TYPE_CIRCLE)
+              board_outline_x1_or_Mx.append(vector1.x)
+              board_outline_y1_or_My.append(vector1.y)
+              board_outline_x2_or_r.append(float(PC.getAttribute("radius")))
+              board_outline_y2.append(float(0.0))
+              board_outline_status.append(OUTLINE_STATUS_UNDEFINED)
+              board_outline_name.append(E.getAttribute("name"))
+      # holes
+      packholes=P.getElementsByTagName("hole")
+      for H in packholes:
+        for E in elements:
+          if (E.getAttribute("library")==L.getAttribute("name")) and (E.getAttribute("package")==P.getAttribute("name")):
+            angle_str = E.getAttribute("rot")
+            if string.find(angle_str, "MR")==0:
+              angle = float(string.lstrip(angle_str,"MR"))
+              mirror = 1
+            elif string.find(angle_str, "R")==0:
+              angle = float(string.lstrip(angle_str,"R"))
+              mirror = 0
+            else:
+              angle = 0.0
+              mirror = 0
+            
+            vector1 = Base.Vector(float(H.getAttribute("x")), float(H.getAttribute("y")), 0)
+            line1 = Part.makeLine(Base.Vector(0,0,0), vector1)
+            line1.rotate(Base.Vector(0,0,0),Base.Vector(0,0,1),angle)
+            vector1 = line1.Edges[0].Vertexes[1].Point
+            if mirror == 1:
+              vector1.x = -vector1.x
+            vector1.x = vector1.x + float(E.getAttribute("x"))
+            vector1.y = vector1.y + float(E.getAttribute("y"))
+            
+            #todo check all elements if libname and
+            board_outline_curve.append(float(0.0))
+            board_outline_type.append(OUTLINE_TYPE_CIRCLE)
+            board_outline_x1_or_Mx.append(vector1.x)
+            board_outline_y1_or_My.append(vector1.y)
+            board_outline_x2_or_r.append(float(H.getAttribute("drill"))/2.)
+            board_outline_y2.append(float(0.0))
+            board_outline_status.append(OUTLINE_STATUS_UNDEFINED)
+            board_outline_name.append(E.getAttribute("name"))
   
   board_outline_found = False
   # Check all Circles if one is the outline
@@ -688,7 +785,7 @@ def boardextract(brdfile, plabel, fusetol=0.0):
       FreeCAD.Console.PrintMessage("testing circle outline\n")
       board_outline_found = True
       if board_outline_x2_or_r[n] <= 2.:
-        #board_outline_status[n] = OUTLINE_STATUS_IS_CUTOUT
+        board_outline_status[n] = OUTLINE_STATUS_IS_CUTOUT
         board_outline_found = False
       else:
         Mx=board_outline_x1_or_Mx[n]
@@ -939,10 +1036,11 @@ def boardextract(brdfile, plabel, fusetol=0.0):
   FreeCAD.Console.PrintMessage(len(extrusions_cutouts))
   FreeCAD.Console.PrintMessage("\n")
   if (len(extrusions_cutouts)>0):
-    cuts=extrusions_cutouts[0]
-    for n in range(1,len(extrusions_cutouts)):
-      cuts=cuts.fuse(extrusions_cutouts[n])
-    board = board.cut(cuts)
+    #cuts=extrusions_cutouts[0]
+    for n in range(0,len(extrusions_cutouts)):
+      FreeCAD.Console.PrintMessage(n)
+      FreeCAD.Console.PrintMessage("\n")
+      board = board.cut(extrusions_cutouts[n])
   
   Part.show(board)
   FreeCADGui.getDocument(docname).ActiveObject.ShapeColor=(0.,(170./255.),0.)
