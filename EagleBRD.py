@@ -689,23 +689,54 @@ def extract_board(brdfile, plabel, fusetol=0.0):
     packages = L.getElementsByTagName("packages")[0]
     packs = packages.getElementsByTagName("package")
     for P in packs:
-      #todo check holes, drills, pads,...
+      # Wires and ARC's
       packwire=P.getElementsByTagName("wire")
       for PW in packwire:
         if PW.getAttribute("layer")==LAYER_DIMENSION_NUMBER:
           for E in elements:
             if (E.getAttribute("library")==L.getAttribute("name")) and (E.getAttribute("package")==P.getAttribute("name")):
-              #todo check all elements if libname and 
+              angle_str = E.getAttribute("rot")
+              if string.find(angle_str, "MR")==0:
+                angle = float(string.lstrip(angle_str,"MR"))
+                mirror = 1
+              elif string.find(angle_str, "R")==0:
+                angle = float(string.lstrip(angle_str,"R"))
+                mirror = 0
+              else:
+                angle = 0.0
+                mirror = 0
+              #todo line throug point 0,0 --> line can not be generated --> auch bei circles und holes
+              vector1 = Base.Vector(float(PW.getAttribute("x1")), float(PW.getAttribute("y1")), 0)
+              vector2 = Base.Vector(float(PW.getAttribute("x2")), float(PW.getAttribute("y2")), 0)
+              if (vector1 != Base.Vector(0,0,0)):
+                line1 = Part.makeLine(Base.Vector(0,0,0), vector1)
+                line1.rotate(Base.Vector(0,0,0),Base.Vector(0,0,1),angle)
+                vector1 = line1.Edges[0].Vertexes[1].Point
+              if (vector2 != Base.Vector(0,0,0)):
+                line2 = Part.makeLine(Base.Vector(0,0,0), vector2)
+                line2.rotate(Base.Vector(0,0,0),Base.Vector(0,0,1),angle)
+                vector2 = line2.Edges[0].Vertexes[1].Point
+              if mirror == 1:
+                vector1.x = -vector1.x
+                vector2.x = -vector2.x
+              vector1.x = vector1.x + float(E.getAttribute("x"))
+              vector1.y = vector1.y + float(E.getAttribute("y"))
+              vector2.x = vector2.x + float(E.getAttribute("x"))
+              vector2.y = vector2.y + float(E.getAttribute("y"))
+              
               if PW.hasAttribute("curve"):
-                board_outline_curve.append(float(PW.getAttribute("curve")))
+                if mirror == 1:
+                  board_outline_curve.append(-float(PW.getAttribute("curve")))
+                else:
+                  board_outline_curve.append(float(PW.getAttribute("curve")))
                 board_outline_type.append(OUTLINE_TYPE_ARC)
               else:
                 board_outline_curve.append(float(0.0))
                 board_outline_type.append(OUTLINE_TYPE_WIRE)
-              board_outline_x1_or_Mx.append(float(PW.getAttribute("x1")))
-              board_outline_y1_or_My.append(float(PW.getAttribute("y1")))
-              board_outline_x2_or_r.append(float(PW.getAttribute("x2")))
-              board_outline_y2.append(float(PW.getAttribute("y2")))
+              board_outline_x1_or_Mx.append(vector1.x)
+              board_outline_y1_or_My.append(vector1.y)
+              board_outline_x2_or_r.append(vector2.x)
+              board_outline_y2.append(vector2.y)
               board_outline_status.append(OUTLINE_STATUS_UNDEFINED)
               board_outline_name.append(E.getAttribute("name"))
       # circles
@@ -724,11 +755,11 @@ def extract_board(brdfile, plabel, fusetol=0.0):
               else:
                 angle = 0.0
                 mirror = 0
-              
               vector1 = Base.Vector(float(PC.getAttribute("x")), float(PC.getAttribute("y")), 0)
-              line1 = Part.makeLine(Base.Vector(0,0,0), vector1)
-              line1.rotate(Base.Vector(0,0,0),Base.Vector(0,0,1),angle)
-              vector1 = line1.Edges[0].Vertexes[1].Point
+              if (vector1 != Base.Vector(0,0,0)):
+                line1 = Part.makeLine(Base.Vector(0,0,0), vector1)
+                line1.rotate(Base.Vector(0,0,0),Base.Vector(0,0,1),angle)
+                vector1 = line1.Edges[0].Vertexes[1].Point
               if mirror == 1:
                 vector1.x = -vector1.x
               vector1.x = vector1.x + float(E.getAttribute("x"))
@@ -760,9 +791,10 @@ def extract_board(brdfile, plabel, fusetol=0.0):
               mirror = 0
             
             vector1 = Base.Vector(float(H.getAttribute("x")), float(H.getAttribute("y")), 0)
-            line1 = Part.makeLine(Base.Vector(0,0,0), vector1)
-            line1.rotate(Base.Vector(0,0,0),Base.Vector(0,0,1),angle)
-            vector1 = line1.Edges[0].Vertexes[1].Point
+            if (vector1 != Base.Vector(0,0,0)):
+              line1 = Part.makeLine(Base.Vector(0,0,0), vector1)
+              line1.rotate(Base.Vector(0,0,0),Base.Vector(0,0,1),angle)
+              vector1 = line1.Edges[0].Vertexes[1].Point
             if mirror == 1:
               vector1.x = -vector1.x
             vector1.x = vector1.x + float(E.getAttribute("x"))
@@ -778,6 +810,7 @@ def extract_board(brdfile, plabel, fusetol=0.0):
             board_outline_status.append(OUTLINE_STATUS_UNDEFINED)
             board_outline_name.append(E.getAttribute("name"))
   
+  # --- Now search the start of outer contour in the list of wires, arc's and circles
   board_outline_found = False
   # Check all Circles if one is the outline
   for n in range(0,len(board_outline_type)):
