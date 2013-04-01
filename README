@@ -21,8 +21,9 @@ Description / Features:
 - It generates a rectangular green board with plus 10mm border
 - [alpha] Add group SIGNALS and draw signal routes (copper) of layers 
           top/bottom/IN1/IN2 + VIA's
+- [alpha] Extracting PCB board directly out of informations in *.brd (dimension 
+          Layer 20)
 - [wishlist] --> Adding correct PCB board via path to .stp/FCStd in *.cfg file
-- [wishlist] --> Extracting PCB board directly out of informations in *.brd
 - [wishlist] --> Add drills to extracted board
 - [wishlist] --> Extract part pad's out of *.brd and connect to SIGNALS group
 - [wishlist] --> Extract polygons out of *.brd and connect to SIGNALS group
