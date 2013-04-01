@@ -56,14 +56,14 @@ PH_CYL=2
 
 # --- std. values if no .cfg was used - Here you can set global default settings
 default_docname="NEWDOC"
-default_boardgentype=PLANEGEN
+default_boardgentype=EXTRACTED
 default_thickness=1.6
 default_show_notfound=PH_BALL
 default_bgen_border=10.
 default_libpath=FreeCAD.getHomePath()+"Mod/EagleBRD/lib/"
 default_pack_excludelist=["bla"]
-default_signalgen=True
-default_diagnostic=True
+default_signalgen=False
+default_diagnostic=False
 default_diag_path = FreeCAD.getHomePath()+"Mod/EagleBRD/"
 default_diag_filename = "diagnostic.txt"
 default_signal_pcb_copper = 0.02
@@ -640,6 +640,8 @@ def extract_board(brdfile, plabel, fusetol=0.0):
   path4 = path3.getElementsByTagName("plain")[0]
   pathE = path3.getElementsByTagName("elements")[0]
   pathL = path3.getElementsByTagName("libraries")[0]
+  pathS = path3.getElementsByTagName("signals")[0]
+  signals = pathS.getElementsByTagName("signal")
   libs = pathL.getElementsByTagName("library")
   elements = pathE.getElementsByTagName("element")
   wiresarcs = path4.getElementsByTagName("wire")
@@ -684,7 +686,6 @@ def extract_board(brdfile, plabel, fusetol=0.0):
     board_outline_name.append("PLAIN")
   
   # --- Add Dimension Layer elements out of .brd library sections if part was placed
-  # todo move and rotate al points depending on placement
   for L in libs:
     packages = L.getElementsByTagName("packages")[0]
     packs = packages.getElementsByTagName("package")
@@ -705,7 +706,6 @@ def extract_board(brdfile, plabel, fusetol=0.0):
               else:
                 angle = 0.0
                 mirror = 0
-              #todo line throug point 0,0 --> line can not be generated --> auch bei circles und holes
               vector1 = Base.Vector(float(PW.getAttribute("x1")), float(PW.getAttribute("y1")), 0)
               vector2 = Base.Vector(float(PW.getAttribute("x2")), float(PW.getAttribute("y2")), 0)
               if (vector1 != Base.Vector(0,0,0)):
@@ -765,7 +765,6 @@ def extract_board(brdfile, plabel, fusetol=0.0):
               vector1.x = vector1.x + float(E.getAttribute("x"))
               vector1.y = vector1.y + float(E.getAttribute("y"))
               
-              #todo check all elements if libname and
               board_outline_curve.append(float(0.0))
               board_outline_type.append(OUTLINE_TYPE_CIRCLE)
               board_outline_x1_or_Mx.append(vector1.x)
@@ -800,7 +799,6 @@ def extract_board(brdfile, plabel, fusetol=0.0):
             vector1.x = vector1.x + float(E.getAttribute("x"))
             vector1.y = vector1.y + float(E.getAttribute("y"))
             
-            #todo check all elements if libname and
             board_outline_curve.append(float(0.0))
             board_outline_type.append(OUTLINE_TYPE_CIRCLE)
             board_outline_x1_or_Mx.append(vector1.x)
@@ -809,6 +807,53 @@ def extract_board(brdfile, plabel, fusetol=0.0):
             board_outline_y2.append(float(0.0))
             board_outline_status.append(OUTLINE_STATUS_UNDEFINED)
             board_outline_name.append(E.getAttribute("name"))
+      # pad's
+      packpads=P.getElementsByTagName("pad")
+      for PP in packpads:
+        for E in elements:
+          if (E.getAttribute("library")==L.getAttribute("name")) and (E.getAttribute("package")==P.getAttribute("name")):
+            angle_str = E.getAttribute("rot")
+            if string.find(angle_str, "MR")==0:
+              angle = float(string.lstrip(angle_str,"MR"))
+              mirror = 1
+            elif string.find(angle_str, "R")==0:
+              angle = float(string.lstrip(angle_str,"R"))
+              mirror = 0
+            else:
+              angle = 0.0
+              mirror = 0
+            
+            vector1 = Base.Vector(float(PP.getAttribute("x")), float(PP.getAttribute("y")), 0)
+            if (vector1 != Base.Vector(0,0,0)):
+              line1 = Part.makeLine(Base.Vector(0,0,0), vector1)
+              line1.rotate(Base.Vector(0,0,0),Base.Vector(0,0,1),angle)
+              vector1 = line1.Edges[0].Vertexes[1].Point
+            if mirror == 1:
+              vector1.x = -vector1.x
+            vector1.x = vector1.x + float(E.getAttribute("x"))
+            vector1.y = vector1.y + float(E.getAttribute("y"))
+            
+            board_outline_curve.append(float(0.0))
+            board_outline_type.append(OUTLINE_TYPE_CIRCLE)
+            board_outline_x1_or_Mx.append(vector1.x)
+            board_outline_y1_or_My.append(vector1.y)
+            board_outline_x2_or_r.append(float(PP.getAttribute("drill"))/2.)
+            board_outline_y2.append(float(0.0))
+            board_outline_status.append(OUTLINE_STATUS_UNDEFINED)
+            board_outline_name.append(E.getAttribute("name"))
+  
+  # --- Add drilled vias
+  for SG in signals:
+    vias = SG.getElementsByTagName("via")
+    for VI in vias:
+      board_outline_curve.append(float(0.0))
+      board_outline_type.append(OUTLINE_TYPE_CIRCLE)
+      board_outline_x1_or_Mx.append(float(VI.getAttribute("x")))
+      board_outline_y1_or_My.append(float(VI.getAttribute("y")))
+      board_outline_x2_or_r.append(float(VI.getAttribute("drill"))/2.)
+      board_outline_y2.append(float(0.0))
+      board_outline_status.append(OUTLINE_STATUS_UNDEFINED)
+      board_outline_name.append("PLAIN")
   
   # --- Now search the start of outer contour in the list of wires, arc's and circles
   board_outline_found = False
@@ -1077,7 +1122,7 @@ def extract_board(brdfile, plabel, fusetol=0.0):
   
   Part.show(board)
   FreeCADGui.getDocument(docname).ActiveObject.ShapeColor=(0.,(170./255.),0.)
-  FreeCAD.getDocument(docname).ActiveObject.Label = "BOARD"
+  FreeCAD.getDocument(docname).ActiveObject.Label = plabel
   #FreeCADGui.ActiveDocument.ActiveObject.ShapeColor=(0.,(170./255.),0.)
   #FreeCAD.ActiveDocument.ActiveObject.Label = "BOARD"
 
@@ -1217,6 +1262,8 @@ def placeparts(brdfile):
     Part.show(pcb1)
     FreeCADGui.getDocument(docname).ActiveObject.ShapeColor=(0.,(170./255.),0.)
     FreeCAD.getDocument(docname).ActiveObject.Label = "BOARD"
+  elif (boardgentype == EXTRACTED):
+    extract_board(brdfile, "BOARD")
   elif (boardgentype == CADFILE):
     if string.find(boardCADfilePath, ".stp") != -1:
       Part.insert(boardCADfilePath,docname)
@@ -1226,7 +1273,7 @@ def placeparts(brdfile):
       newinsert=1
     else:
       newinsert=0
-
+    
     if newinsert==1:
       #FreeCAD.getDocument(docname).ActiveObject.Placement = FreeCAD.Placement(FreeCAD.Vector(posx, posy, 0.5 * pcb_thickness), FreeCAD.Rotation(eulerToQuaternion(angle, 0, 0)))
       FreeCAD.getDocument(docname).ActiveObject.Label = "BOARD"
