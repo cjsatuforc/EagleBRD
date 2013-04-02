@@ -2,6 +2,8 @@
 # FreeCAD module named EagleBRD for Importing Eagle 6.x .brd files into FreeCAD#
 ################################################################################
 
+![Output in FreeCAD](wiki/images/output.jpg)
+
 This project started in the end of 2011 as i was playing around with FreeCAD and 
 the first versions of Cadsoft EAGLE 6.x. 
 Some tools were available at this time (EagleUP, Eagle3D, ...) but most of them 
