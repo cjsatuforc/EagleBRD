@@ -504,9 +504,11 @@ def showsignals(bfile1):
 # current FreeCAD document (should be a kind of import functionality)
 def insertfcstd(fcstdpath, dname):
   mydoc=FreeCAD.activeDocument()
-  mydocname=FreeCAD.activeDocument().Name
+  #mydocname=FreeCAD.activeDocument().Name
+  mydocname=mydoc.Name
   opendoc=FreeCAD.openDocument(fcstdpath)
-  opendocname=FreeCAD.activeDocument().Name
+  #opendocname=FreeCAD.activeDocument().Name
+  opendocname=opendoc.Name
   for i in opendoc.Objects:
     if (i.ViewObject.Visibility==True):
       cpy = mydoc.copyObject(i)
